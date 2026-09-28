@@ -18,6 +18,13 @@ const TENSOR_INTERFACE_METADATA: &str = "openkara.tensor_interface";
 const SPECTRAL_CONTRACT_METADATA: &str = "openkara.spectral_contract";
 const ONNXRUNTIME_OPTIMIZED_BY_VALUE: &str = "onnxruntime";
 
+/// Opt-in ONNX session tuning read from the app config. The default leaves
+/// every provider at its stock behavior.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct SessionOptions {
+    pub disable_directml_graph_fusion: bool,
+}
+
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub(crate) struct ModelRuntimeMetadata {
     pub model_cache_key: Option<String>,
@@ -109,6 +116,7 @@ pub(crate) fn read_model_runtime_metadata(path: &Path) -> Result<ModelRuntimeMet
 pub(crate) fn session_cache_key(
     model_path: &Path,
     provider: ExecutionProviderPreference,
+    options: SessionOptions,
     metadata: &ModelRuntimeMetadata,
 ) -> String {
     let mut key = match metadata.model_cache_key.as_deref() {
@@ -127,12 +135,16 @@ pub(crate) fn session_cache_key(
             key.push_str(contract);
         }
     }
+    if !session_config_entries(provider, options).is_empty() {
+        key.push_str("::dml-graph-fusion-disabled");
+    }
     key
 }
 
 pub fn load_from_path(
     path: &Path,
     ep_preference: ExecutionProviderPreference,
+    options: SessionOptions,
 ) -> Result<LoadedModel> {
     tracing::info!(
         "attempting ONNX session load for {} via {}",
@@ -144,7 +156,7 @@ pub fn load_from_path(
     let mut last_error = None;
 
     for (index, provider) in provider_chain.iter().copied().enumerate() {
-        match load_with_ep(path, provider) {
+        match load_with_ep(path, provider, options) {
             Ok(model) => {
                 if index > 0 {
                     tracing::warn!(
@@ -265,7 +277,11 @@ fn intra_thread_count(
         .max(1)
 }
 
-fn load_with_ep(path: &Path, ep_preference: ExecutionProviderPreference) -> Result<LoadedModel> {
+fn load_with_ep(
+    path: &Path,
+    ep_preference: ExecutionProviderPreference,
+    options: SessionOptions,
+) -> Result<LoadedModel> {
     activation::ensure_activated()?;
     let runtime_metadata = read_model_runtime_metadata(path)?;
     // Fail unsupported spectral contracts before creating an ORT session (#172).
@@ -304,6 +320,13 @@ fn load_with_ep(path: &Path, ep_preference: ExecutionProviderPreference) -> Resu
     #[cfg(target_os = "windows")]
     if matches!(ep_preference, ExecutionProviderPreference::DirectMl) {
         activation::preload_directml_companion()?;
+    }
+
+    for (key, value) in session_config_entries(ep_preference, options) {
+        tracing::info!("setting ONNX session config entry {key}={value}");
+        builder = builder
+            .with_config_entry(key, value)
+            .map_err(|e| anyhow::anyhow!("failed to set session config entry {key}: {e}"))?;
     }
 
     let ep_list = build_execution_provider_list(ep_preference, num_threads);
@@ -418,6 +441,23 @@ fn build_execution_provider_list(
             .build()],
         ExecutionProviderPreference::CoreMl => vec![ep::CoreML::default().build()],
         ExecutionProviderPreference::DirectMl => vec![ep::DirectML::default().build()],
+    }
+}
+
+/// Workaround for a DirectML graph-fusion miscompile of the spectral-core
+/// htdemucs graph seen on an RTX 3070 Ti: the fused output is thousands of
+/// times too loud. Unfused DirectML matches the CPU provider (ADR 0031).
+const DISABLE_DML_GRAPH_FUSION: (&str, &str) = ("ep.dml.disable_graph_fusion", "1");
+
+fn session_config_entries(
+    preference: ExecutionProviderPreference,
+    options: SessionOptions,
+) -> &'static [(&'static str, &'static str)] {
+    match preference {
+        ExecutionProviderPreference::DirectMl if options.disable_directml_graph_fusion => {
+            &[DISABLE_DML_GRAPH_FUSION]
+        }
+        _ => &[],
     }
 }
 
@@ -643,6 +683,73 @@ mod tests {
     }
 
     #[test]
+    fn directml_graph_fusion_stays_enabled_by_default() {
+        for preference in [
+            ExecutionProviderPreference::Cpu,
+            ExecutionProviderPreference::Xnnpack,
+            ExecutionProviderPreference::CoreMl,
+            ExecutionProviderPreference::DirectMl,
+        ] {
+            assert!(session_config_entries(preference, SessionOptions::default()).is_empty());
+        }
+    }
+
+    #[test]
+    fn opt_in_disables_graph_fusion_only_for_directml() {
+        let options = SessionOptions {
+            disable_directml_graph_fusion: true,
+        };
+        assert_eq!(
+            session_config_entries(ExecutionProviderPreference::DirectMl, options),
+            &[("ep.dml.disable_graph_fusion", "1")]
+        );
+        for preference in [
+            ExecutionProviderPreference::Cpu,
+            ExecutionProviderPreference::Xnnpack,
+            ExecutionProviderPreference::CoreMl,
+        ] {
+            assert!(session_config_entries(preference, options).is_empty());
+        }
+    }
+
+    #[test]
+    fn session_cache_key_separates_unfused_directml_sessions() {
+        let model_path = Path::new("/tmp/models/htdemucs.spectral.onnx");
+        let metadata = ModelRuntimeMetadata::default();
+        let fused = session_cache_key(
+            model_path,
+            ExecutionProviderPreference::DirectMl,
+            SessionOptions::default(),
+            &metadata,
+        );
+        let unfused = session_cache_key(
+            model_path,
+            ExecutionProviderPreference::DirectMl,
+            SessionOptions {
+                disable_directml_graph_fusion: true,
+            },
+            &metadata,
+        );
+        assert_ne!(fused, unfused);
+        assert_eq!(
+            session_cache_key(
+                model_path,
+                ExecutionProviderPreference::Cpu,
+                SessionOptions {
+                    disable_directml_graph_fusion: true,
+                },
+                &metadata,
+            ),
+            session_cache_key(
+                model_path,
+                ExecutionProviderPreference::Cpu,
+                SessionOptions::default(),
+                &metadata,
+            )
+        );
+    }
+
+    #[test]
     fn provider_chain_keeps_cpu_only_when_requested() {
         assert_eq!(
             execution_provider_chain(ExecutionProviderPreference::Cpu),
@@ -697,7 +804,12 @@ mod tests {
         };
 
         assert_eq!(
-            session_cache_key(model_path, ExecutionProviderPreference::Xnnpack, &metadata),
+            session_cache_key(
+                model_path,
+                ExecutionProviderPreference::Xnnpack,
+                SessionOptions::default(),
+                &metadata
+            ),
             "/tmp/models/htdemucs.onnx::xnnpack::cache-key-123"
         );
     }
@@ -782,7 +894,12 @@ mod tests {
         };
 
         assert_eq!(
-            session_cache_key(model_path, ExecutionProviderPreference::Cpu, &metadata),
+            session_cache_key(
+                model_path,
+                ExecutionProviderPreference::Cpu,
+                SessionOptions::default(),
+                &metadata
+            ),
             "/tmp/models/htdemucs.spectral.onnx::cpu::cache-key-123::openkara.spectral-contract/v1"
         );
     }
