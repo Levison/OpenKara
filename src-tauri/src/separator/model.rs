@@ -68,6 +68,10 @@ pub(crate) fn ensure_spectral_core_metadata(metadata: &ModelRuntimeMetadata) -> 
 
 pub struct LoadedModel {
     pub model_path: PathBuf,
+    /// Provider that successfully created this session. When
+    /// [`load_from_path`] walks a fallback chain, this is the provider that
+    /// actually committed — not the original preference.
+    pub execution_provider: ExecutionProviderPreference,
     pub inputs: Vec<String>,
     pub outputs: Vec<String>,
     pub input_shape: Vec<i64>,
@@ -85,6 +89,7 @@ impl std::fmt::Debug for LoadedModel {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("LoadedModel")
             .field("model_path", &self.model_path)
+            .field("execution_provider", &self.execution_provider)
             .field("inputs", &self.inputs)
             .field("outputs", &self.outputs)
             .field("input_shape", &self.input_shape)
@@ -135,8 +140,11 @@ pub(crate) fn session_cache_key(
             key.push_str(contract);
         }
     }
-    if !session_config_entries(provider, options).is_empty() {
-        key.push_str("::dml-graph-fusion-disabled");
+    for (entry_key, entry_value) in session_config_entries(provider, options) {
+        key.push_str("::");
+        key.push_str(entry_key);
+        key.push('=');
+        key.push_str(entry_value);
     }
     key
 }
@@ -414,6 +422,7 @@ fn load_with_ep(
 
     Ok(LoadedModel {
         model_path,
+        execution_provider: ep_preference,
         inputs,
         outputs,
         input_shape,
@@ -731,6 +740,14 @@ mod tests {
             &metadata,
         );
         assert_ne!(fused, unfused);
+        assert!(
+            unfused.ends_with("::ep.dml.disable_graph_fusion=1"),
+            "unfused DirectML cache key should derive its suffix from session config entries, got {unfused}"
+        );
+        assert!(
+            !fused.contains("ep.dml.disable_graph_fusion"),
+            "default DirectML cache key should omit unused session config entries, got {fused}"
+        );
         assert_eq!(
             session_cache_key(
                 model_path,
