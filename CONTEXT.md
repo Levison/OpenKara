@@ -101,6 +101,33 @@ Romanization that arrives with the lyrics. When it is present, it is the
 romanization the player shows.
 _Avoid_: Official romanization, TTML roman, x-roman
 
+**Note Track**:
+A song's timed pitch targets. OpenKara stores it as its own artifact, next to
+the lyrics, not inside them. A **Note Track** can come from an UltraStar
+import, from a later derived pipeline, or from in-app editing.
+_Avoid_: Pitched lyrics, MIDI lyrics, UltraStar file (the file is a source; the
+stored model is the Note Track)
+
+**Note**:
+One timed pitch target in a **Note Track**. A **Note** has a start, an end, a
+MIDI pitch, a **Note Kind**, syllable text, and an optional slide flag.
+_Avoid_: Token, lyric word, bar
+
+**Note Kind**:
+The scoring class of a **Note**: normal, golden, freestyle, or rap.
+_Avoid_: Note type (ambiguous with MIDI note type)
+
+**Slide**:
+A **Note** that continues the previous note's syllable. The pitch lane draws a
+ramp into it. UltraStar `~` continuations become slides on import.
+_Avoid_: Glide, portamento (implementation detail of the ramp)
+
+**Pitch Lane**:
+The lyrics display mode that draws **Note** bars at pitch height with a moving
+playhead. It is a persisted setting. It has no automatic fallback to line
+lyrics.
+_Avoid_: SingStar mode, karaoke revolution mode, note highway
+
 ## Relationships
 
 - A **Remote Repository** belongs to exactly one **Remote Provider** account and one **Remote Repository Location**.
@@ -127,6 +154,15 @@ _Avoid_: Official romanization, TTML roman, x-roman
   ambiguous match leaves the current **Line-timed Lyrics** in place.
 - When lyrics include **Supplied Romanization**, the player shows that
   romanization. It does not generate a local romanization for those lines.
+- A **Note Track** is not part of **Lyrics Acquisition**. Importing or deriving
+  a **Note Track** does not replace cached lyrics by itself.
+- When a song has no lyrics and an UltraStar file is imported, OpenKara also
+  builds **Line-timed Lyrics** or **Word-timed Lyrics** from the note syllable
+  text and phrase breaks so ordinary lyrics modes still have something to show.
+- In **Pitch Lane** mode, the words under the lane come from **Note** syllable
+  text. Ordinary lyrics modes keep using the lyrics from **Lyrics Acquisition**.
+- **Pitch Lane** mode has no automatic fallback. Songs without a **Note Track**
+  still show the lane, with flat bars and a "No pitch data" badge.
 
 ## Example dialogue
 

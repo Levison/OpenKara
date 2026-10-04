@@ -75,3 +75,5 @@ every other line of the old ADR untouched. Do not delete accepted records.
 - [0029 — Centered lyrics use an in-house focus stage](./0029-centered-lyrics-use-in-house-focus-stage.md)
 - [0030 — Focus stage owns line slots, word roman, and emphasis](./0030-focus-stage-owns-slots-word-roman-and-emphasis.md)
 - [0031 — DirectML graph fusion opt-out](./0031-directml-graph-fusion-opt-out.md)
+- [0032 — Note Track is separate from lyrics](./0032-note-track-is-separate-from-lyrics.md)
+- [0031 — DirectML graph fusion opt-out](./0031-directml-graph-fusion-opt-out.md)
