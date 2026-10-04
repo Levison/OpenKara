@@ -68,18 +68,26 @@ fn separate_to_dir(
         ExecutionProviderPreference::Cpu,
         model::SessionOptions::default(),
     )
+    .0
 }
 
 /// Run streaming separation with an explicit execution-provider preference.
+///
+/// Returns the separation outcome and the provider that actually committed the
+/// session (which may differ from `preference` when the fallback chain runs).
 fn separate_to_dir_with_preference(
     model_path: &Path,
     stem_mode: StemMode,
     output_dir: &Path,
     preference: ExecutionProviderPreference,
     options: model::SessionOptions,
-) -> openkara_lib::separator::inference::SeparationOutcome {
+) -> (
+    openkara_lib::separator::inference::SeparationOutcome,
+    ExecutionProviderPreference,
+) {
     let loaded_model =
         model::load_from_path(model_path, preference, options).expect("model should load");
+    let resolved_provider = loaded_model.execution_provider;
 
     let decoded = decode::decode_file(&fixture_path("audio", "fixture.wav"))
         .expect("fixture audio should decode");
@@ -133,7 +141,7 @@ fn separate_to_dir_with_preference(
     .expect("streaming separation should succeed");
 
     writers.finish_all().expect("writers should finalize");
-    outcome
+    (outcome, resolved_provider)
 }
 
 fn decoded_samples(path: &Path) -> Vec<f32> {
@@ -336,7 +344,7 @@ fn spectral_separation_with_default_platform_preference_is_stable() {
     drop(loaded);
 
     let out_dir = support::unique_temp_path("phase7-spectral-default-ep");
-    let outcome = separate_to_dir_with_preference(
+    let (outcome, _) = separate_to_dir_with_preference(
         &model_path,
         StemMode::TwoStem,
         &out_dir,
@@ -379,13 +387,21 @@ fn directml_without_graph_fusion_matches_cpu() {
 
     let run = |label: &str, preference, options| {
         let out_dir = support::unique_temp_path(label);
-        separate_to_dir_with_preference(
+        let (_, resolved) = separate_to_dir_with_preference(
             &model_path,
             StemMode::TwoStem,
             &out_dir,
             preference,
             options,
         );
+        if preference == ExecutionProviderPreference::DirectMl {
+            assert_eq!(
+                resolved,
+                ExecutionProviderPreference::DirectMl,
+                "{label}: DirectML preference fell back to {}; parity would pass vacuously on CPU",
+                resolved.as_str()
+            );
+        }
         let vocals = decoded_samples(&out_dir.join("vocals.ogg"));
         fs::remove_dir_all(&out_dir).ok();
         vocals

@@ -36,5 +36,7 @@ session.
 - An affected host can keep GPU separation. The user sets one config key.
 - The app does not detect the defect. An affected user must find the key.
 - `directml_without_graph_fusion_matches_cpu` requires unfused DirectML stems to
-  match CPU stems on Windows hosts with DirectML. The test only reports the
-  fused result, because the fused result is correct on most hosts.
+  match CPU stems on Windows hosts with DirectML. Both DirectML runs assert the
+  session committed on DirectML before comparing stems, so a CPU fallback cannot
+  pass the guard vacuously. The test only reports the fused result, because the
+  fused result is correct on most hosts.
