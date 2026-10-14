@@ -70,6 +70,7 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  PNPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS: "false"
 
 jobs:
   build-installer:
@@ -82,19 +83,26 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        with:
-          version: 11.20.0
-
       - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           package-manager-cache: false
 
+      - name: Setup pnpm (Apple Silicon)
+        if: runner.os != 'macOS' || runner.arch != 'X64'
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 11.20.0
+          standalone: true
+
+      - name: Setup pnpm (macOS Intel)
+        if: runner.os == 'macOS' && runner.arch == 'X64'
+        # Intel macOS needs the pinned pnpm CLI: standalone binaries require newer macOS.
+        run: npm install -g pnpm@11.20.0 # zizmor: ignore[adhoc-packages]
+
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@02cb101ec7c40f2c49e1d9714d64511d8e1b74de # v1
+        uses: dtolnay/rust-toolchain@e2a55d2ffb04f378e9626c28d38b36d230d1e12f # master
         with:
           toolchain: stable
           targets: ${{ inputs.rust_target }}
@@ -147,7 +155,7 @@ jobs:
 
       - name: Upload DMG
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ inputs.artifact_prefix }}-installer
           path: src-tauri/target/${{ inputs.rust_target }}/release/bundle/dmg/*.dmg
@@ -156,7 +164,7 @@ jobs:
 
       - name: Upload automation driver
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ inputs.artifact_prefix }}-driver
           path: src-tauri/target/${{ inputs.rust_target }}/release/openkara_automation_driver
@@ -165,7 +173,7 @@ jobs:
 
       - name: Upload release evidence driver
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ inputs.artifact_prefix }}-evidence-driver
           path: src-tauri/target/${{ inputs.rust_target }}/release/openkara_release_evidence
@@ -204,7 +212,7 @@ jobs:
 
       - name: Upload macOS updater artifacts
         if: ${{ inputs.release_build }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ inputs.artifact_prefix }}-updater
           path: ${{ runner.temp }}/macos-updater
@@ -223,32 +231,32 @@ jobs:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           package-manager-cache: false
 
       - name: Download candidate DMG
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: ${{ inputs.artifact_prefix }}-installer
           path: ${{ runner.temp }}/installer
 
       - name: Download automation driver
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: ${{ inputs.artifact_prefix }}-driver
           path: ${{ runner.temp }}/driver
 
       - name: Download release evidence driver
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: ${{ inputs.artifact_prefix }}-evidence-driver
           path: ${{ runner.temp }}/evidence-driver
 
       - name: Download release updater artifacts
         if: ${{ inputs.release_build }}
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: ${{ inputs.artifact_prefix }}-updater
           path: ${{ runner.temp }}/updater
@@ -369,7 +377,7 @@ jobs:
 
       - name: Upload smoke reports
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ inputs.artifact_prefix }}-smoke-reports
           path: |
@@ -395,13 +403,13 @@ jobs:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           package-manager-cache: false
 
       - name: Download smoke reports
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: ${{ inputs.artifact_prefix }}-smoke-reports
           path: ${{ runner.temp }}/smoke-reports
