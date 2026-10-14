@@ -357,6 +357,7 @@ fn spectral_separation_with_default_platform_preference_is_stable() {
     fs::remove_dir_all(&out_dir).ok();
 }
 
+#[cfg(target_os = "windows")]
 fn relative_error(reference: &[f32], candidate: &[f32]) -> f64 {
     let len = reference.len().min(candidate.len());
     let (mut diff, mut norm) = (0.0f64, 0.0f64);
