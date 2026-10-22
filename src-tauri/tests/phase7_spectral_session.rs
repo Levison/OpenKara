@@ -357,6 +357,22 @@ fn spectral_separation_with_default_platform_preference_is_stable() {
     fs::remove_dir_all(&out_dir).ok();
 }
 
+/// Rejects empty, unequal-length or non-finite outputs so a parity check
+/// cannot pass on a partial comparison.
+#[cfg(target_os = "windows")]
+fn assert_comparable(label: &str, reference: &[f32], candidate: &[f32]) {
+    assert!(!reference.is_empty(), "{label}: reference output is empty");
+    assert_eq!(
+        reference.len(),
+        candidate.len(),
+        "{label}: decoded output lengths differ"
+    );
+    assert!(
+        reference.iter().chain(candidate).all(|s| s.is_finite()),
+        "{label}: decoded output contains non-finite samples"
+    );
+}
+
 #[cfg(target_os = "windows")]
 fn relative_error(reference: &[f32], candidate: &[f32]) -> f64 {
     let len = reference.len().min(candidate.len());
@@ -386,6 +402,7 @@ fn directml_without_graph_fusion_matches_cpu() {
         return;
     }
 
+    const STEMS: [&str; 2] = ["vocals", "accompaniment"];
     let run = |label: &str, preference, options| {
         let out_dir = support::unique_temp_path(label);
         let (_, resolved) = separate_to_dir_with_preference(
@@ -403,9 +420,9 @@ fn directml_without_graph_fusion_matches_cpu() {
                 resolved.as_str()
             );
         }
-        let vocals = decoded_samples(&out_dir.join("vocals.ogg"));
+        let stems = STEMS.map(|stem| decoded_samples(&out_dir.join(format!("{stem}.ogg"))));
         fs::remove_dir_all(&out_dir).ok();
-        vocals
+        stems
     };
     let cpu = run(
         "phase7-dml-parity-cpu",
@@ -425,10 +442,19 @@ fn directml_without_graph_fusion_matches_cpu() {
         },
     );
 
-    eprintln!(
-        "vocals relative error vs CPU: fused {:.3e}, unfused {:.3e}",
-        relative_error(&cpu, &fused),
-        relative_error(&cpu, &unfused)
-    );
-    assert!(relative_error(&cpu, &unfused) < 0.05);
+    for (index, stem) in STEMS.iter().enumerate() {
+        // Fused output is diagnostic only; unfused must be fully comparable.
+        assert_comparable(&format!("{stem} unfused"), &cpu[index], &unfused[index]);
+        let unfused_error = relative_error(&cpu[index], &unfused[index]);
+        eprintln!(
+            "{stem} relative error vs CPU: fused {:.3e} ({} vs {} samples), unfused {unfused_error:.3e}",
+            relative_error(&cpu[index], &fused[index]),
+            fused[index].len(),
+            cpu[index].len()
+        );
+        assert!(
+            unfused_error < 0.05,
+            "{stem}: unfused DirectML differs from CPU (relative error {unfused_error:.3e})"
+        );
+    }
 }
