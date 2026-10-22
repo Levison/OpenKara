@@ -70,7 +70,9 @@ pub struct LoadedModel {
     pub model_path: PathBuf,
     /// Provider that successfully created this session. When
     /// [`load_from_path`] walks a fallback chain, this is the provider that
-    /// actually committed — not the original preference.
+    /// actually committed — not the original preference. DirectML must
+    /// register for its attempt to succeed; XNNPACK and CoreML keep ort's
+    /// default of falling back to CPU inside the same session.
     pub execution_provider: ExecutionProviderPreference,
     pub inputs: Vec<String>,
     pub outputs: Vec<String>,
@@ -449,7 +451,12 @@ fn build_execution_provider_list(
             )
             .build()],
         ExecutionProviderPreference::CoreMl => vec![ep::CoreML::default().build()],
-        ExecutionProviderPreference::DirectMl => vec![ep::DirectML::default().build()],
+        // Require DirectML registration: ort otherwise falls back to CPU
+        // silently, and the session would be reported as DirectML. A failure
+        // here lets `load_from_path` take its explicit CPU fallback instead.
+        ExecutionProviderPreference::DirectMl => {
+            vec![ep::DirectML::default().build().error_on_failure()]
+        }
     }
 }
 
@@ -763,6 +770,17 @@ mod tests {
                 SessionOptions::default(),
                 &metadata,
             )
+        );
+    }
+
+    #[test]
+    fn directml_registration_failure_is_an_error() {
+        let providers = build_execution_provider_list(ExecutionProviderPreference::DirectMl, 1);
+        assert_eq!(providers.len(), 1);
+        let debug = format!("{:?}", providers[0]);
+        assert!(
+            debug.contains("error_on_failure: true"),
+            "DirectML must not fall back to CPU silently, got {debug}"
         );
     }
 
