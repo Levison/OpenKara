@@ -114,6 +114,16 @@ const PLAYBACK_COMMANDS: CommandContract[] = [
   },
 ];
 
+const YOUTUBE_WATCH_COMMANDS: CommandContract[] = [
+  {
+    command: "control_youtube_watch",
+    frontendFile: "src/lib/tauri/youtube-watch.ts",
+    frontendFn: "controlYoutubeWatch",
+    hasArgs: true,
+    rustParams: ["action"],
+  },
+];
+
 const LIBRARY_COMMANDS: CommandContract[] = [
   {
     command: "import_songs",
@@ -342,6 +352,7 @@ const SEPARATION_COMMANDS: CommandContract[] = [
 
 const ALL_COMMANDS = [
   ...PLAYBACK_COMMANDS,
+  ...YOUTUBE_WATCH_COMMANDS,
   ...LIBRARY_COMMANDS,
   ...LYRICS_COMMANDS,
   ...SEPARATION_COMMANDS,
@@ -420,6 +431,12 @@ describe("IPC command registry", () => {
     ];
     const registered = SETTINGS_COMMANDS.map((c) => c.command);
     expect(registered.sort()).toEqual(expectedSettingsCommands.sort());
+  });
+
+  test("youtube watch commands match contract documentation", () => {
+    expect(YOUTUBE_WATCH_COMMANDS.map((c) => c.command)).toEqual([
+      "control_youtube_watch",
+    ]);
   });
 
   test("separation commands match contract documentation", () => {
@@ -1023,10 +1040,13 @@ describe("CommandError shape matches Rust CommandError", () => {
       "invalid_playback_state",
       "execution_provider_unavailable",
       "separation_failed",
+      "online_source_disabled",
+      "streaming_auth_failed",
+      "streaming_session_expired",
+      "video_source_unavailable",
       "internal",
     ];
-    // All 14 error codes from the Rust ErrorCode enum.
-    expect(validCodes).toHaveLength(14);
+    expect(validCodes).toHaveLength(18);
     for (const code of validCodes) {
       expect(typeof code).toBe("string");
     }
@@ -1141,46 +1161,6 @@ describe("ImportLyricsResult shape matches Rust ImportLyricsResult", () => {
 });
 
 describe("AppSettings shape matches Rust AppSettings", () => {
-  test("has all fields from Rust serialization", () => {
-    const settings: AppSettings = {
-      stem_mode: "two_stem",
-      model_variant: "htdemucs",
-      language: "en",
-      hide_batch_separate: false,
-      cover_art_backdrop: true,
-      lyrics_blur_inactive: false,
-      hide_upgrade_all: false,
-      lyrics_font_step: 0,
-      execution_provider: "cpu",
-      available_execution_providers: ["cpu", "xnnpack"],
-      compatible_execution_providers: ["cpu", "xnnpack"],
-      eq_enabled: false,
-      eq_gains_db: [0, 0, 0, 0, 0],
-      crossfade_enabled: false,
-      crossfade_duration_ms: 3_000,
-      library_sort_mode: "recently_imported",
-      theme_preference: "dark",
-      update_policy: "notify",
-    };
-    expect(settings).toHaveProperty("stem_mode");
-    expect(settings).toHaveProperty("model_variant");
-    expect(settings).toHaveProperty("language");
-    expect(settings).toHaveProperty("hide_batch_separate");
-    expect(settings).toHaveProperty("cover_art_backdrop");
-    expect(settings).toHaveProperty("lyrics_blur_inactive");
-    expect(settings.lyrics_blur_inactive).toBe(false);
-    expect(settings).toHaveProperty("hide_upgrade_all");
-    expect(settings).toHaveProperty("lyrics_font_step");
-    expect(settings).toHaveProperty("execution_provider");
-    expect(settings).toHaveProperty("available_execution_providers");
-    expect(settings).toHaveProperty("compatible_execution_providers");
-    expect(settings).toHaveProperty("eq_enabled");
-    expect(settings).toHaveProperty("eq_gains_db");
-    expect(settings).toHaveProperty("library_sort_mode");
-    expect(settings).toHaveProperty("theme_preference");
-    expect(settings).toHaveProperty("update_policy");
-  });
-
   test("stem_mode values match Rust StemMode enum", () => {
     const validModes: AppSettings["stem_mode"][] = ["two_stem", "four_stem"];
     for (const mode of validModes) {

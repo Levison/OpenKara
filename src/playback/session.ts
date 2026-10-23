@@ -57,12 +57,57 @@ export interface PlaybackQueueOps {
   removeSongIds: (songIds: string[]) => void;
 }
 
+export function isVideoSourceQueueId(songId: string): boolean {
+  return songId.startsWith("yt:");
+}
+
+export interface StreamingPreviewReference {
+  sourceId: string;
+  remoteTrackId: string;
+}
+
+export function onlinePreviewQueueId(
+  sourceId: string,
+  remoteTrackId: string,
+): string {
+  return `stream:${sourceId}:${encodeURIComponent(remoteTrackId)}`;
+}
+
+export function isOnlinePreviewQueueId(songId: string): boolean {
+  return onlinePreviewReference(songId) !== null;
+}
+
+export function onlinePreviewReference(
+  songId: string,
+): StreamingPreviewReference | null {
+  const match = /^stream:([a-z][a-z0-9_-]{0,63}):(.+)$/.exec(songId);
+  if (!match) return null;
+  try {
+    return { sourceId: match[1], remoteTrackId: decodeURIComponent(match[2]) };
+  } catch {
+    return null;
+  }
+}
+
+export interface VideoPlaybackTransport {
+  play(videoId: string): Promise<PlaybackStateSnapshot>;
+  pause(): Promise<PlaybackStateSnapshot>;
+  resume(): Promise<PlaybackStateSnapshot>;
+  seek(ms: number): Promise<PlaybackStateSnapshot>;
+  setVolume(level: number): Promise<PlaybackStateSnapshot>;
+  teardown(): Promise<void>;
+  isActive(): boolean;
+  relayout?(): Promise<void>;
+}
+
 export interface PlaybackSessionDeps {
   transport: PlaybackTransport;
   queue: PlaybackQueueOps;
   getSeparationStatus: (songId: string) => SeparationStatusSnapshot | undefined;
   nowMs?: () => number;
   onClockChange: (clock: PositionClockState) => void;
+  videoTransport?: VideoPlaybackTransport;
+  stopLocalAndCancelPreload?: () => Promise<void>;
 }
 
 export function createPlaybackSession(
@@ -91,7 +136,28 @@ export function createPlaybackSession(
     return true;
   };
 
+  function isVideoActive(songId?: string | null): boolean {
+    return (
+      !!deps.videoTransport?.isActive() ||
+      (!!songId && isVideoSourceQueueId(songId))
+    );
+  }
+
   async function playSongWithOptionalStems(songId: string): Promise<void> {
+    if (isVideoSourceQueueId(songId)) {
+      await deps.stopLocalAndCancelPreload?.();
+      if (!deps.videoTransport) {
+        throw new Error("video transport is not available");
+      }
+      const snapshot = await deps.videoTransport.play(songId);
+      tryApplyAuthoritative(snapshot);
+      return;
+    }
+
+    if (deps.videoTransport?.isActive()) {
+      await deps.videoTransport.teardown();
+    }
+
     const snapshot = await deps.transport.play(songId);
     tryApplyAuthoritative(snapshot);
 
@@ -213,6 +279,12 @@ export function createPlaybackSession(
     },
 
     resume: async () => {
+      if (isVideoActive(clock.snapshot?.song_id)) {
+        const snapshot = await deps.videoTransport!.resume();
+        const authoritative = { ...snapshot, is_playing: true };
+        tryApplyAuthoritative(authoritative);
+        return;
+      }
       const snapshot = await deps.transport.resume();
       const authoritative = {
         ...snapshot,
@@ -222,6 +294,12 @@ export function createPlaybackSession(
     },
 
     pause: async () => {
+      if (isVideoActive(clock.snapshot?.song_id)) {
+        const snapshot = await deps.videoTransport!.pause();
+        const authoritative = { ...snapshot, is_playing: false };
+        tryApplyAuthoritative(authoritative);
+        return;
+      }
       const snapshot = await deps.transport.pause();
       const authoritative = {
         ...snapshot,
@@ -233,6 +311,17 @@ export function createPlaybackSession(
     seek: async (ms) => {
       if (!clock.snapshot?.song_id) return false;
       const clamped = Math.max(0, ms);
+      if (isVideoActive(clock.snapshot.song_id)) {
+        const snapshot = await deps.videoTransport!.seek(clamped);
+        const current = clock.snapshot;
+        if (
+          current?.song_id === snapshot.song_id &&
+          current.transport_generation === snapshot.transport_generation
+        ) {
+          return true;
+        }
+        return tryApplyAuthoritative(snapshot);
+      }
       const snapshot = await deps.transport.seek(clamped);
 
       const current = clock.snapshot;
@@ -248,6 +337,14 @@ export function createPlaybackSession(
 
     setVolume: async (level) => {
       const clamped = Math.max(0, Math.min(1, level));
+      if (isVideoActive(clock.snapshot?.song_id)) {
+        const snapshot = await deps.videoTransport!.setVolume(clamped);
+        if (isStaleTransportSnapshotForClock(clock, snapshot)) {
+          return;
+        }
+        publish({ ...clock, snapshot });
+        return;
+      }
       const snapshot = await deps.transport.setVolume(clamped);
       if (isStaleTransportSnapshotForClock(clock, snapshot)) {
         return;
@@ -259,6 +356,9 @@ export function createPlaybackSession(
     },
 
     setStemVolume: async (stem, level) => {
+      if (isVideoActive(clock.snapshot?.song_id)) {
+        return;
+      }
       const clamped = Math.max(0, Math.min(1, level));
       const snapshot = await deps.transport.setStemVolume(stem, clamped);
       if (isStaleTransportSnapshotForClock(clock, snapshot)) {
@@ -271,6 +371,9 @@ export function createPlaybackSession(
     },
 
     loadStems: async () => {
+      if (isVideoActive(clock.snapshot?.song_id)) {
+        return;
+      }
       const snapshot = await deps.transport.loadStems();
       tryApplyAuthoritative(snapshot);
     },

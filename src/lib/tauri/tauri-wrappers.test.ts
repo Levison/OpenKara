@@ -10,6 +10,7 @@ vi.mock("@tauri-apps/api/core", () => ({
 
 import { createTauriBackend } from "@/lib/backend/tauri-backend";
 import { tauriInvoke } from "./invoke";
+import { createCatalogCommands } from "./catalog";
 
 const {
   cdg,
@@ -445,6 +446,8 @@ describe("settings", () => {
     crossfade_duration_ms: 3_000,
     library_sort_mode: "recently_imported" as const,
     theme_preference: "dark" as const,
+    update_policy: "notify" as const,
+    youtube_source_enabled: false,
   };
 
   test("getModelBootstrapStatus invokes get_model_bootstrap_status", async () => {
@@ -661,6 +664,86 @@ describe("settings", () => {
     const returned = await settings.setThemePreference("light");
     expect(mockInvoke).toHaveBeenCalledWith("set_theme_preference", {
       preference: "light",
+    });
+    expect(returned).toBe(appSettings);
+  });
+
+  test("listOnlineSources invokes list_online_sources", async () => {
+    const sources = [
+      {
+        id: "youtube",
+        kind: "video",
+        enabled: false,
+        capabilities: {
+          sign_in: false,
+          browse: false,
+          import: false,
+          resolve_video: false,
+        },
+      },
+    ];
+    mockInvoke.mockResolvedValueOnce(sources);
+    const returned = await settings.listOnlineSources();
+    expect(mockInvoke).toHaveBeenCalledWith("list_online_sources");
+    expect(returned).toBe(sources);
+  });
+
+  test("getStreamingSession invokes get_streaming_session", async () => {
+    const session = {
+      source_id: "third-party",
+      signed_in: false,
+      display_name: null,
+      expired: false,
+    };
+    mockInvoke.mockResolvedValueOnce(session);
+    const catalog = createCatalogCommands(mockInvoke);
+    const returned = await catalog.getStreamingSession("third-party");
+    expect(mockInvoke).toHaveBeenCalledWith("get_streaming_session", {
+      sourceId: "third-party",
+    });
+    expect(returned).toBe(session);
+  });
+
+  test("controlYoutubeWatch invokes control_youtube_watch", async () => {
+    mockInvoke.mockResolvedValueOnce({
+      ended: false,
+      paused: true,
+      current_time_ms: 0,
+      duration_ms: null,
+    });
+    const { createYoutubeWatchCommands } = await import("./youtube-watch");
+    const youtubeWatch = createYoutubeWatchCommands(mockInvoke);
+    await youtubeWatch.controlYoutubeWatch({
+      type: "navigate",
+      url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    });
+    expect(mockInvoke).toHaveBeenCalledWith("control_youtube_watch", {
+      action: {
+        type: "navigate",
+        url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      },
+    });
+  });
+
+  test("resolveVideoSourceUrl invokes resolve_video_source_url", async () => {
+    mockInvoke.mockResolvedValueOnce([]);
+    const catalog = createCatalogCommands(mockInvoke);
+    await catalog.resolveVideoSourceUrl(
+      "youtube",
+      "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    );
+    expect(mockInvoke).toHaveBeenCalledWith("resolve_video_source_url", {
+      sourceId: "youtube",
+      url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    });
+  });
+
+  test("setOnlineSourceEnabled invokes set_online_source_enabled", async () => {
+    mockInvoke.mockResolvedValueOnce(appSettings);
+    const returned = await settings.setOnlineSourceEnabled("youtube", true);
+    expect(mockInvoke).toHaveBeenCalledWith("set_online_source_enabled", {
+      sourceId: "youtube",
+      enabled: true,
     });
     expect(returned).toBe(appSettings);
   });
@@ -1171,12 +1254,16 @@ describe("library-setup", () => {
   });
 
   test("deleteLibrary invokes delete_library", async () => {
-    mockInvoke.mockResolvedValueOnce(registrySnapshot);
+    const deleteResult = {
+      registry: registrySnapshot,
+      remote_repository_deleted: null,
+    };
+    mockInvoke.mockResolvedValueOnce(deleteResult);
     const returned = await librarySetup.deleteLibrary("lib-1");
     expect(mockInvoke).toHaveBeenCalledWith("delete_library", {
       libraryId: "lib-1",
     });
-    expect(returned).toBe(registrySnapshot);
+    expect(returned).toBe(deleteResult);
   });
 });
 

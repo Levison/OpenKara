@@ -14,6 +14,7 @@ export function useLyricsAutoFetch(enabled = true) {
       return;
     }
     if (songId && songId !== previousSongId.current) {
+      // Streamed previews use source-bound metadata without a library row.
       fetchLyrics(songId);
     }
     previousSongId.current = songId;

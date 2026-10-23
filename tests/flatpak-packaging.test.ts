@@ -1,4 +1,13 @@
-import { existsSync, readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
@@ -127,6 +136,94 @@ function parseCargoLockfilePackages(lockfile: string): CargoLockfilePackage[] {
 }
 
 describe("Flatpak packaging", () => {
+  test.skipIf(process.platform === "win32")(
+    "renders pinned channel runtimes and installs the executable and license",
+    () => {
+      const directory = mkdtempSync(
+        join(tmpdir(), "openkara-flatpak-runtime-"),
+      );
+      try {
+        const result = spawnSync(
+          process.execPath,
+          [
+            "scripts/render-flatpak-manifest.mjs",
+            "--version",
+            "0.17.0",
+            "--source-url",
+            "data:application/octet-stream,source-fixture",
+            "--output",
+            directory,
+          ],
+          { cwd: projectRoot, encoding: "utf8" },
+        );
+        expect(result.status, result.stderr).toBe(0);
+        const manifest = readFileSync(
+          join(
+            directory,
+            "io.github.thedavidweng.OpenKara/io.github.thedavidweng.OpenKara.yml",
+          ),
+          "utf8",
+        );
+        const archives = Array.from(
+          manifest.matchAll(
+            /url: (https:\/\/nodejs\.org\/\S+)\n\s+sha256: (\w+)\n\s+dest: source-runtime\n\s+only-arches:\n\s+- (\S+)/g,
+          ),
+          (match) => ({ url: match[1], sha256: match[2], arch: match[3] }),
+        );
+        expect(archives).toEqual([
+          {
+            url: "https://nodejs.org/dist/v24.21.0/node-v24.21.0-linux-x64.tar.gz",
+            sha256:
+              "6e1db87ef58b8819e5d5402eff1536491b18edd8eb7bee5ef7897876e88dc5ff",
+            arch: "x86_64",
+          },
+          {
+            url: "https://nodejs.org/dist/v24.21.0/node-v24.21.0-linux-arm64.tar.gz",
+            sha256:
+              "724282c3b43aec998aa9527380465b45d229e021b58035f5f4f63095eabfe5d5",
+            arch: "aarch64",
+          },
+        ]);
+        mkdirSync(join(directory, "source-runtime/bin"), { recursive: true });
+        writeFileSync(
+          join(directory, "source-runtime/bin/node"),
+          "runtime-fixture",
+        );
+        writeFileSync(
+          join(directory, "source-runtime/LICENSE"),
+          "license-fixture",
+        );
+        const commands = Array.from(
+          manifest.matchAll(
+            /^\s+- ((?:mkdir|install) .*source-runtime\/.*)$/gm,
+          ),
+          (match) => match[1],
+        );
+        expect(commands).toHaveLength(2);
+        const destination = join(directory, "app");
+        const install = spawnSync("sh", ["-ec", commands.join("\n")], {
+          cwd: directory,
+          env: { ...process.env, FLATPAK_DEST: destination },
+          encoding: "utf8",
+        });
+        expect(install.status, install.stderr).toBe(0);
+        expect(
+          readFileSync(join(destination, "bin/openkara-source-node"), "utf8"),
+        ).toBe("runtime-fixture");
+        expect(
+          readFileSync(
+            join(
+              destination,
+              "share/licenses/io.github.thedavidweng.OpenKara/source-runtime/LICENSE",
+            ),
+            "utf8",
+          ),
+        ).toBe("license-fixture");
+      } finally {
+        rmSync(directory, { recursive: true, force: true });
+      }
+    },
+  );
   test("targets current supported Flathub runtimes and both default architectures", () => {
     const manifestTemplate = readProjectFile(
       "packaging/flatpak/io.github.thedavidweng.OpenKara.yml.in",

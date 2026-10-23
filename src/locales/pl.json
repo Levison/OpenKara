@@ -108,7 +108,9 @@
       "title": "Ulepsz wszystkie utwory do 4 ścieżek",
       "message": "Spowoduje to ponowne rozdzielenie wszystkich utworów w trybie 4 ścieżek. Zajętość dysku przez ścieżki mniej więcej się podwoi.",
       "confirm": "Ulepsz wszystkie"
-    }
+    },
+    "onlineSources": "ŹRÓDŁA ONLINE",
+    "youtubeLink": "Link do YouTube"
   },
   "toolbar": {
     "import": "Importuj",
@@ -191,7 +193,18 @@
     },
     "modelPreparing": "Przygotowywanie modelu rozdzielania…",
     "cancelSeparation": "Anuluj rozdzielanie",
-    "usingCachedSeparation": "Używanie rozdzielenia z pamięci podręcznej"
+    "usingCachedSeparation": "Używanie rozdzielenia z pamięci podręcznej",
+    "revealSongFile": "Pokaż plik utworu",
+    "revealStems": "Otwórz folder stemów",
+    "decision": {
+      "title": "Decyzja biblioteki",
+      "importConflict": "Ten utwór jest już w bibliotece, ale plik jest inny. Zachowaj utwór z biblioteki albo go zastąp.",
+      "keep": "Zachowaj utwór z biblioteki",
+      "replace": "Zastąp utwór z biblioteki",
+      "applyToRemaining": "Zastosuj do pozostałych konfliktów",
+      "librarySong": "Utwór z biblioteki",
+      "incoming": "Przychodzący plik"
+    }
   },
   "player": {
     "previous": "Poprzedni",
@@ -328,6 +341,55 @@
     "failedToLoad": "Nie udało się wczytać właściwości"
   },
   "settings": {
+    "streaming": {
+      "title": "Streaming Sources",
+      "refresh": "Check for sources and updates",
+      "trustNotice": "Install reviewed source packages only. Their code runs on your computer and can access credentials you provide. A signature identifies the publisher; it is not a sandbox.",
+      "empty": "No sources are available. Check for sources to try again.",
+      "publisher": "Publisher / package",
+      "license": "License",
+      "installed": "Installed version",
+      "notInstalled": "Not installed",
+      "available": "Available version",
+      "runtime": "Runtime",
+      "runtimeReady": "Ready",
+      "runtimeMissing": "Download required",
+      "state": "Source state",
+      "authentication": "Account",
+      "signedOut": "Signed out",
+      "staged": "Version {{version}} waits for active work to finish.",
+      "activeWork": "Active work",
+      "install": "Install",
+      "update": "Update",
+      "disable": "Disable",
+      "enable": "Enable",
+      "pin": "Pin installed version",
+      "unpin": "Remove pin",
+      "uninstall": "Uninstall",
+      "confirmUninstall": "Uninstall source",
+      "confirmDisable": "Disable source",
+      "libraryRetained": "Imported songs and playlists stay in your library.",
+      "stopWorkBody": "This action must stop the following work",
+      "stopWork": "Stop active source work",
+      "credentialsChoice": "Choose what to do with saved credentials",
+      "retainCredentials": "Keep saved credentials",
+      "removeCredentials": "Remove saved credentials",
+      "states": {
+        "not_installed": "Not installed",
+        "installing": "Installing",
+        "ready": "Ready",
+        "disabled": "Disabled",
+        "update_required": "Update required",
+        "unavailable": "Unavailable",
+        "waiting_for_idle": "Waiting for active work",
+        "cancelling": "Cancelling"
+      },
+      "work": {
+        "authentication": "Sign-in",
+        "preview": "Online preview",
+        "import": "Streaming import"
+      }
+    },
     "title": "Preferencje",
     "library": {
       "label": "Biblioteka karaoke",
@@ -391,7 +453,9 @@
       "existingRemoteLibraries": "Istniejące zdalne repozytoria",
       "connectRemoteGoogleDrive": "Połącz z Google Drive",
       "connectRemoteDropbox": "Połącz z Dropbox",
-      "connectRemoteWebdav": "Połącz"
+      "connectRemoteWebdav": "Połącz",
+      "deleteRemoteRepositoryWarning": "Ta operacja trwale usunie zdalne repozytorium z {{provider}} w lokalizacji {{path}}. Aby usunąć tylko połączenie tego urządzenia, wybierz {{disconnectAction}}.",
+      "remoteDeletionSkipped": "Połączenie lokalne zostało usunięte, ale zdalne repozytorium pozostaje w {{provider}}, ponieważ OpenKara nie mogła uzyskać do niego dostępu przy użyciu bieżącego połączenia lub poświadczeń. W razie potrzeby połącz się ponownie i usuń je z {{provider}}."
     },
     "stemMode": {
       "label": "Tryb rozdzielania ścieżek",
@@ -678,6 +742,12 @@
     "lyricsBlurInactive": {
       "enable": "Rozmyj nieodtwarzane wersy",
       "description": "Zmiękcza minione i nadchodzące linie. Zostaw wyłączone, by czytać z wyprzedzeniem."
+    },
+    "onlineSources": {
+      "label": "Źródła online",
+      "description": "Włącz źródło muzyki lub wideo. Oba pozostają wyłączone, dopóki ich nie wybierzesz.",
+      "youtube": "YouTube",
+      "youtubeDescription": "Wklej publiczny link do filmu lub playlisty do kolejki. OpenKara nie pobiera dźwięku z YouTube."
     }
   },
   "bootstrap": {
@@ -721,6 +791,13 @@
     "confirmRemoveSingerMessage": "Ten śpiewający jest przypisany do utworów w kolejce. Jego usunięcie spowoduje również usunięcie tych utworów z kolejki."
   },
   "errors": {
+    "streaming_source_unavailable": "Source unavailable",
+    "streaming_unsupported_operation": "Operation not supported",
+    "streaming_source_not_found": "Source not found",
+    "streaming_challenge_expired": "Sign-in challenge expired",
+    "streaming_invalid_cursor": "This page expired. Load it again.",
+    "streaming_work_active": "Source work is active",
+    "streaming_cancelled": "Source operation cancelled",
     "database_unavailable": "Błąd bazy danych",
     "media_read_failed": "Import nie powiódł się",
     "song_not_found": "Nie znaleziono utworu",
@@ -739,7 +816,11 @@
     "separation_failed": "Rozdzielanie nie powiodło się",
     "internal": "Błąd wewnętrzny",
     "remote_repository_unavailable": "Zdalne repozytorium jest niedostępne",
-    "somethingWentWrong": "Coś poszło nie tak"
+    "somethingWentWrong": "Coś poszło nie tak",
+    "online_source_disabled": "To źródło online jest wyłączone.",
+    "streaming_auth_failed": "Nie udało się zalogować",
+    "streaming_session_expired": "Sesja źródła streamingowego wygasła. Zaloguj się ponownie.",
+    "video_source_unavailable": "Tego filmu nie można odtworzyć jako gość."
   },
   "updater": {
     "available": "Dostępna jest wersja {{version}}",
@@ -749,5 +830,103 @@
     "restartToApply": "Aktualizacja gotowa — uruchom ponownie, aby zastosować",
     "restart": "Uruchom ponownie",
     "failed": "Aktualizacja nie powiodła się — pobierz ręcznie najnowsze wydanie"
+  },
+  "catalog": {
+    "streaming": {
+      "title": "Streaming Source",
+      "signOut": "Wyloguj się",
+      "sessionExpired": "Sesja wygasła. Zaloguj się ponownie.",
+      "liked": "Polubione utwory",
+      "playlists": "Playlisty",
+      "searchPlaceholder": "Search source songs",
+      "importTrack": "Importuj",
+      "importPlaylist": "Importuj playlistę",
+      "connect": "Sign in",
+      "clearSearch": "Wyczyść wyszukiwanie",
+      "tabsLabel": "Source library sections",
+      "resultsTab": "Wyniki dla „{{query}}”",
+      "accountMenu": "Menu konta",
+      "importTrackLabel": "Importuj „{{title}}”",
+      "statusNoRights": "Brak praw do odtwarzania",
+      "statusNoRightsHint": "Your account cannot play this song, so it cannot be imported.",
+      "statusTrial": "Tylko fragment próbny",
+      "statusTrialHint": "Only a trial clip is available, so this song cannot be imported.",
+      "statusImporting": "Importowanie…",
+      "statusImported": "W bibliotece",
+      "statusFailed": "Import nie powiódł się",
+      "likedEmpty": "Brak polubionych utworów",
+      "playlistsEmpty": "Brak playlist",
+      "resultsEmpty": "Brak wyników dla „{{query}}”",
+      "playlistEmpty": "Ta playlista nie zawiera utworów",
+      "loadFailed": "Nie udało się wczytać tej listy.",
+      "importDone": "Zaimportowano {{imported}} · pominięto {{skipped}}",
+      "viewSkipped": "Pokaż pominięte",
+      "hideSkipped": "Ukryj pominięte",
+      "skipReason": {
+        "refusal": "Nie można zaimportować",
+        "cancelled": "Anulowano",
+        "import_failed": "Import nie powiódł się"
+      },
+      "importProgressLabel": "Import w toku",
+      "connectTitle": "Connect your account",
+      "connectBody": "Zaloguj się, aby przeglądać polubione utwory i playlisty, a następnie zaimportować te, które możesz odtworzyć. Zaimportowane pliki należą do Twojej biblioteki.",
+      "connectHintWindow": "Complete sign-in in the source window.",
+      "connectHintRights": "Utworów bez praw do odtwarzania lub z samym fragmentem próbnym nie można zaimportować.",
+      "signInFailed": "Logowanie nie powiodło się: {{message}}",
+      "songCount_one": "{{count}} utwór",
+      "songCount_few": "{{count}} utwory",
+      "songCount_many": "{{count}} utworów",
+      "songCount_other": "{{count}} utworu",
+      "statusQueued": "W kolejce",
+      "statusDownloading": "Pobieranie {{percent}}%",
+      "statusDownloadingUnknown": "Pobieranie…",
+      "statusCancelled": "Anulowano",
+      "importSelected": "Importuj zaznaczone ({{selected}})",
+      "selectAll": "Zaznacz wszystkie utwory",
+      "selectRow": "Zaznacz: {{title}}",
+      "cancelImport": "Anuluj",
+      "cancelling": "Anulowanie…",
+      "skippedSoFar": "Pominięto: {{skipped}}",
+      "back": "Wstecz",
+      "byCreator": "od {{creator}}",
+      "updatedOn": "zaktualizowano {{date}}",
+      "importableCount": "{{importable}} do zaimportowania",
+      "select": "Zaznacz",
+      "selectDone": "Gotowe",
+      "hideUnavailable": "Ukryj niedostępne",
+      "unavailableHidden": "Ukryto niedostępnych: {{hidden}}",
+      "trackListLabel": "Utwory",
+      "retryImportLabel": "Ponów import „{{title}}”",
+      "importingProgress": "Importowanie {{completed}} z {{total}}",
+      "loadingMore": "Wczytywanie kolejnych utworów…",
+      "refusalReason": {
+        "trial_clip": "Only a trial clip is available",
+        "no_play_rights": "Brak praw do odtwarzania",
+        "empty_url": "Brak dostępnego dźwięku",
+        "unavailable": "This source cannot provide this song"
+      },
+      "cantPlayTitle": "Nie można odtworzyć „{{title}}”",
+      "importToSing": "Importuj, aby śpiewać",
+      "previewHint": "Podgląd ze streamingu. Zaimportuj utwór, aby śpiewać, oddzielić wokal lub dodać tekst.",
+      "search": "Search",
+      "results": "Search results",
+      "loadMore": "Load more",
+      "importLoaded": "Import loaded songs",
+      "scanCode": "Scan to sign in",
+      "unavailable": "Source unavailable. Open Settings to manage it.",
+      "noOperations": "This source has no supported browsing operations.",
+      "signedIn": "Signed in"
+    }
+  },
+  "youtube": {
+    "pasteLink": "Wklej link YouTube",
+    "pastePlaceholder": "https://www.youtube.com/watch?v=…",
+    "addToQueue": "Dodaj do kolejki",
+    "invalidUrl": "To nie jest publiczny link do filmu ani playlisty YouTube.",
+    "ageRestricted": "Ten film ma ograniczenie wiekowe.",
+    "private": "Ten film jest prywatny.",
+    "unlisted": "Ten film nie jest na liście.",
+    "popoverTitle": "Dodaj link do YouTube",
+    "popoverHint": "Publiczny film lub playlista. Odtwarzanie z YouTube — OpenKara nie pobiera dźwięku."
   }
 }

@@ -413,6 +413,7 @@ mod tests {
             library_sort_mode: None,
             theme_preference: None,
             update_policy: None,
+            youtube_source_enabled: None,
             remote_cache_bytes_limit: None,
             pending_mirror_restore: false,
             pending_mirror_restore_active_library_id: None,
@@ -430,6 +431,7 @@ mod tests {
             library_sort_mode: None,
             theme_preference: None,
             update_policy: None,
+            youtube_source_enabled: None,
             ..AppConfig::default()
         };
         let json = serde_json::to_string(&config).unwrap();

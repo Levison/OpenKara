@@ -1,5 +1,9 @@
 export {
   createPlaybackSession,
+  isOnlinePreviewQueueId,
+  isVideoSourceQueueId,
+  onlinePreviewQueueId,
+  onlinePreviewReference,
   shouldEnqueueInsteadOfReplacingCurrentSong,
   shouldLoadSeparatedStems,
   selectCurrentPositionMs,
@@ -9,6 +13,7 @@ export {
   type PlaybackSessionDeps,
   type PlaybackTransport,
   type PlaybackQueueOps,
+  type VideoPlaybackTransport,
   type PositionClockState,
 } from "./session";
 

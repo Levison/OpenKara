@@ -108,7 +108,9 @@
       "title": "Alle nummers upgraden naar 4 sporen",
       "message": "Hiermee worden alle nummers opnieuw gescheiden met de 4-sporenmodus. Het schijfruimtegebruik voor sporen wordt ongeveer verdubbeld.",
       "confirm": "Alles upgraden"
-    }
+    },
+    "onlineSources": "ONLINEBRONNEN",
+    "youtubeLink": "YouTube-link"
   },
   "toolbar": {
     "import": "Importeren",
@@ -189,7 +191,18 @@
     },
     "modelPreparing": "Scheidingsmodel voorbereiden…",
     "cancelSeparation": "Scheiding annuleren",
-    "usingCachedSeparation": "Scheiding uit cache gebruiken"
+    "usingCachedSeparation": "Scheiding uit cache gebruiken",
+    "revealSongFile": "Nummerbestand tonen",
+    "revealStems": "Stemmap openen",
+    "decision": {
+      "title": "Bibliotheekbeslissing",
+      "importConflict": "Dit nummer staat al in de bibliotheek met een ander bestand. Behoud het bibliotheeknummer of vervang het.",
+      "keep": "Bibliotheeknummer behouden",
+      "replace": "Bibliotheeknummer vervangen",
+      "applyToRemaining": "Toepassen op resterende conflicten",
+      "librarySong": "Bibliotheeknummer",
+      "incoming": "Inkomend bestand"
+    }
   },
   "player": {
     "previous": "Vorige",
@@ -326,6 +339,55 @@
     "failedToLoad": "Eigenschappen laden mislukt"
   },
   "settings": {
+    "streaming": {
+      "title": "Streaming Sources",
+      "refresh": "Check for sources and updates",
+      "trustNotice": "Install reviewed source packages only. Their code runs on your computer and can access credentials you provide. A signature identifies the publisher; it is not a sandbox.",
+      "empty": "No sources are available. Check for sources to try again.",
+      "publisher": "Publisher / package",
+      "license": "License",
+      "installed": "Installed version",
+      "notInstalled": "Not installed",
+      "available": "Available version",
+      "runtime": "Runtime",
+      "runtimeReady": "Ready",
+      "runtimeMissing": "Download required",
+      "state": "Source state",
+      "authentication": "Account",
+      "signedOut": "Signed out",
+      "staged": "Version {{version}} waits for active work to finish.",
+      "activeWork": "Active work",
+      "install": "Install",
+      "update": "Update",
+      "disable": "Disable",
+      "enable": "Enable",
+      "pin": "Pin installed version",
+      "unpin": "Remove pin",
+      "uninstall": "Uninstall",
+      "confirmUninstall": "Uninstall source",
+      "confirmDisable": "Disable source",
+      "libraryRetained": "Imported songs and playlists stay in your library.",
+      "stopWorkBody": "This action must stop the following work",
+      "stopWork": "Stop active source work",
+      "credentialsChoice": "Choose what to do with saved credentials",
+      "retainCredentials": "Keep saved credentials",
+      "removeCredentials": "Remove saved credentials",
+      "states": {
+        "not_installed": "Not installed",
+        "installing": "Installing",
+        "ready": "Ready",
+        "disabled": "Disabled",
+        "update_required": "Update required",
+        "unavailable": "Unavailable",
+        "waiting_for_idle": "Waiting for active work",
+        "cancelling": "Cancelling"
+      },
+      "work": {
+        "authentication": "Sign-in",
+        "preview": "Online preview",
+        "import": "Streaming import"
+      }
+    },
     "title": "Voorkeuren",
     "library": {
       "label": "Karaokebibliotheek",
@@ -389,7 +451,9 @@
       "existingRemoteLibraries": "Bestaande externe opslag",
       "connectRemoteGoogleDrive": "Verbinden met Google Drive",
       "connectRemoteDropbox": "Verbinden met Dropbox",
-      "connectRemoteWebdav": "Verbinden"
+      "connectRemoteWebdav": "Verbinden",
+      "deleteRemoteRepositoryWarning": "Hiermee wordt de externe opslag bij {{provider}} op {{path}} permanent verwijderd. Kies {{disconnectAction}} om alleen de verbinding van dit apparaat te verwijderen.",
+      "remoteDeletionSkipped": "De lokale verbinding is verwijderd, maar de externe opslag blijft bij {{provider}} staan omdat OpenKara deze niet kon bereiken met de huidige verbinding of inloggegevens. Maak indien nodig opnieuw verbinding en verwijder deze bij {{provider}}."
     },
     "stemMode": {
       "label": "Sporenscheidingsmodus",
@@ -676,6 +740,12 @@
     "lyricsBlurInactive": {
       "enable": "Niet-spelende regels vervagen",
       "description": "Maakt vorige en volgende regels zachter. Laat uit om vooruit te lezen."
+    },
+    "onlineSources": {
+      "label": "Online bronnen",
+      "description": "Zet een muziek- of videobron aan. Beide blijven uit tot je ze kiest.",
+      "youtube": "YouTube",
+      "youtubeDescription": "Plak een openbare video- of afspeellijstlink in de wachtrij. OpenKara downloadt geen YouTube-audio."
     }
   },
   "bootstrap": {
@@ -719,6 +789,13 @@
     "confirmRemoveSingerMessage": "Deze zanger is toegewezen aan nummers in de wachtrij. Als je de zanger verwijdert, worden ook die nummers uit de wachtrij verwijderd."
   },
   "errors": {
+    "streaming_source_unavailable": "Source unavailable",
+    "streaming_unsupported_operation": "Operation not supported",
+    "streaming_source_not_found": "Source not found",
+    "streaming_challenge_expired": "Sign-in challenge expired",
+    "streaming_invalid_cursor": "This page expired. Load it again.",
+    "streaming_work_active": "Source work is active",
+    "streaming_cancelled": "Source operation cancelled",
     "database_unavailable": "Databasefout",
     "media_read_failed": "Import mislukt",
     "song_not_found": "Nummer niet gevonden",
@@ -737,7 +814,11 @@
     "separation_failed": "Scheiding mislukt",
     "internal": "Interne fout",
     "remote_repository_unavailable": "Externe opslagplaats niet beschikbaar",
-    "somethingWentWrong": "Er is iets misgegaan"
+    "somethingWentWrong": "Er is iets misgegaan",
+    "online_source_disabled": "Deze online bron is uit.",
+    "streaming_auth_failed": "Aanmelden mislukt",
+    "streaming_session_expired": "De sessie van de streamingbron is verlopen. Meld je opnieuw aan.",
+    "video_source_unavailable": "Deze video kan niet als gast worden afgespeeld."
   },
   "updater": {
     "available": "Versie {{version}} is beschikbaar",
@@ -747,5 +828,101 @@
     "restartToApply": "Update klaar — start opnieuw op om toe te passen",
     "restart": "Opnieuw opstarten",
     "failed": "Update mislukt — download de nieuwste release handmatig"
+  },
+  "catalog": {
+    "streaming": {
+      "title": "Streaming Source",
+      "signOut": "Afmelden",
+      "sessionExpired": "De sessie is verlopen. Meld je opnieuw aan.",
+      "liked": "Gelikete nummers",
+      "playlists": "Afspeellijsten",
+      "searchPlaceholder": "Search source songs",
+      "importTrack": "Importeren",
+      "importPlaylist": "Afspeellijst importeren",
+      "connect": "Sign in",
+      "clearSearch": "Zoekopdracht wissen",
+      "tabsLabel": "Source library sections",
+      "resultsTab": "Resultaten voor “{{query}}”",
+      "accountMenu": "Accountmenu",
+      "importTrackLabel": "“{{title}}” importeren",
+      "statusNoRights": "Geen afspeelrechten",
+      "statusNoRightsHint": "Your account cannot play this song, so it cannot be imported.",
+      "statusTrial": "Alleen voorbeeldfragment",
+      "statusTrialHint": "Only a trial clip is available, so this song cannot be imported.",
+      "statusImporting": "Importeren…",
+      "statusImported": "In bibliotheek",
+      "statusFailed": "Importeren mislukt",
+      "likedEmpty": "Geen gelikete nummers",
+      "playlistsEmpty": "Geen afspeellijsten",
+      "resultsEmpty": "Geen resultaten voor “{{query}}”",
+      "playlistEmpty": "Deze afspeellijst bevat geen nummers",
+      "loadFailed": "Deze lijst kon niet worden geladen.",
+      "importDone": "{{imported}} geïmporteerd · {{skipped}} overgeslagen",
+      "viewSkipped": "Overgeslagen tonen",
+      "hideSkipped": "Overgeslagen verbergen",
+      "skipReason": {
+        "refusal": "Kan niet worden geïmporteerd",
+        "cancelled": "Geannuleerd",
+        "import_failed": "Importeren mislukt"
+      },
+      "importProgressLabel": "Importeren bezig",
+      "connectTitle": "Connect your account",
+      "connectBody": "Meld je aan om je gelikete nummers en afspeellijsten te bekijken en de nummers te importeren die je kunt afspelen. Geïmporteerde bestanden zijn van jouw bibliotheek.",
+      "connectHintWindow": "Complete sign-in in the source window.",
+      "connectHintRights": "Nummers zonder afspeelrechten of met alleen een voorbeeldfragment kunnen niet worden geïmporteerd.",
+      "signInFailed": "Aanmelden mislukt: {{message}}",
+      "songCount_one": "{{count}} nummer",
+      "songCount_other": "{{count}} nummers",
+      "statusQueued": "In wachtrij",
+      "statusDownloading": "Downloaden {{percent}}%",
+      "statusDownloadingUnknown": "Downloaden…",
+      "statusCancelled": "Geannuleerd",
+      "importSelected": "{{selected}} geselecteerde importeren",
+      "selectAll": "Alle nummers selecteren",
+      "selectRow": "{{title}} selecteren",
+      "cancelImport": "Annuleren",
+      "cancelling": "Annuleren…",
+      "skippedSoFar": "{{skipped}} overgeslagen",
+      "back": "Terug",
+      "byCreator": "door {{creator}}",
+      "updatedOn": "bijgewerkt {{date}}",
+      "importableCount": "{{importable}} importeerbaar",
+      "select": "Selecteren",
+      "selectDone": "Klaar",
+      "hideUnavailable": "Niet-beschikbare verbergen",
+      "unavailableHidden": "{{hidden}} niet-beschikbare verborgen",
+      "trackListLabel": "Nummers",
+      "retryImportLabel": "Import van “{{title}}” opnieuw proberen",
+      "importingProgress": "{{completed}} van {{total}} importeren",
+      "loadingMore": "Meer nummers laden…",
+      "refusalReason": {
+        "trial_clip": "Only a trial clip is available",
+        "no_play_rights": "Geen afspeelrechten",
+        "empty_url": "Geen audio beschikbaar",
+        "unavailable": "This source cannot provide this song"
+      },
+      "cantPlayTitle": "“{{title}}” kan niet worden afgespeeld",
+      "importToSing": "Importeren om te zingen",
+      "previewHint": "Streamingvoorbeeld. Importeer het nummer om mee te zingen, zang te scheiden of songteksten toe te voegen.",
+      "search": "Search",
+      "results": "Search results",
+      "loadMore": "Load more",
+      "importLoaded": "Import loaded songs",
+      "scanCode": "Scan to sign in",
+      "unavailable": "Source unavailable. Open Settings to manage it.",
+      "noOperations": "This source has no supported browsing operations.",
+      "signedIn": "Signed in"
+    }
+  },
+  "youtube": {
+    "pasteLink": "YouTube-link plakken",
+    "pastePlaceholder": "https://www.youtube.com/watch?v=…",
+    "addToQueue": "Aan wachtrij toevoegen",
+    "invalidUrl": "Dat is geen openbare YouTube-kijk- of afspeellijstlink.",
+    "ageRestricted": "Deze video heeft een leeftijdsbeperking.",
+    "private": "Deze video is privé.",
+    "unlisted": "Deze video staat niet in de lijst.",
+    "popoverTitle": "Een YouTube-link toevoegen",
+    "popoverHint": "Openbare video of afspeellijst. Wordt afgespeeld via YouTube — OpenKara downloadt de audio niet."
   }
 }

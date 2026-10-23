@@ -19,6 +19,17 @@ pub enum ErrorCode {
     ExecutionProviderUnavailable,
     RuntimePostDownloadTimeout,
     SeparationFailed,
+    OnlineSourceDisabled,
+    StreamingAuthFailed,
+    StreamingSessionExpired,
+    StreamingSourceUnavailable,
+    StreamingUnsupportedOperation,
+    StreamingSourceNotFound,
+    StreamingChallengeExpired,
+    StreamingInvalidCursor,
+    StreamingWorkActive,
+    StreamingCancelled,
+    VideoSourceUnavailable,
     Internal,
 }
 
@@ -93,6 +104,42 @@ pub fn internal_error(message: impl ToString) -> CommandError {
         message.to_string(),
         true,
         FallbackAction::Retry,
+    )
+}
+
+pub fn online_source_disabled(message: impl ToString) -> CommandError {
+    CommandError::new(
+        ErrorCode::OnlineSourceDisabled,
+        message.to_string(),
+        false,
+        FallbackAction::KeepCurrentState,
+    )
+}
+
+pub fn streaming_auth_failed(message: impl ToString) -> CommandError {
+    CommandError::new(
+        ErrorCode::StreamingAuthFailed,
+        message.to_string(),
+        false,
+        FallbackAction::KeepCurrentState,
+    )
+}
+
+pub fn streaming_session_expired(message: impl ToString) -> CommandError {
+    CommandError::new(
+        ErrorCode::StreamingSessionExpired,
+        message.to_string(),
+        true,
+        FallbackAction::Retry,
+    )
+}
+
+pub fn video_source_unavailable(message: impl ToString) -> CommandError {
+    CommandError::new(
+        ErrorCode::VideoSourceUnavailable,
+        message.to_string(),
+        false,
+        FallbackAction::KeepCurrentState,
     )
 }
 

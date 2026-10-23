@@ -5,7 +5,9 @@ import {
   Folder,
   CheckCircle2,
   Layers,
+  Link2,
   ListMusic,
+  Music2,
 } from "lucide-react";
 import { ConfirmationDialog } from "@/components/Settings/ConfirmationDialog";
 import { InputDialog } from "@/components/Settings/InputDialog";
@@ -17,6 +19,8 @@ import {
   batchSeparationInProgress,
   batchSeparationLabelArgs,
 } from "@/lib/task-progress";
+import { APP_SHORTCUTS, getShortcutDisplay } from "@/lib/app-shortcuts";
+import { useCatalogStore } from "@/stores/catalog-store";
 import { useLibraryStore } from "@/stores/library-store";
 import { usePlaylistStore } from "@/stores/playlist-store";
 import { useSettingsStore } from "@/stores/settings-store";
@@ -43,6 +47,16 @@ export function Sidebar({ header, previewMode = false }: SidebarProps = {}) {
   const hideBatchSeparate = useSettingsStore((s) => s.hideBatchSeparate);
   const hideUpgradeAll = useSettingsStore((s) => s.hideUpgradeAll);
   const stemMode = useSettingsStore((s) => s.stemMode);
+  const sources = useCatalogStore((s) => s.sources);
+  const youtubeSourceEnabled = useSettingsStore((s) => s.youtubeSourceEnabled);
+  const sourceStates = useCatalogStore((s) => s.sourceStates);
+  const youtubeLinkOpen = useCatalogStore((s) => s.youtubeLinkOpen);
+  const setYoutubeLinkOpen = useCatalogStore((s) => s.setYoutubeLinkOpen);
+  const youtubeShortcut = getShortcutDisplay(APP_SHORTCUTS.openYoutubeLink);
+  const catalogView = useCatalogStore((s) => s.activeView);
+  const setCatalogView = useCatalogStore((s) => s.setActiveView);
+  const activeSourceId = useCatalogStore((s) => s.activeSourceId);
+  const setActiveSource = useCatalogStore((s) => s.setActiveSource);
   const [showUpgradeConfirm, setShowUpgradeConfirm] = useState(false);
   const [showCreatePlaylist, setShowCreatePlaylist] = useState(false);
 
@@ -148,9 +162,10 @@ export function Sidebar({ header, previewMode = false }: SidebarProps = {}) {
             onClick={() => {
               setFilter("all");
               setActivePlaylist(null);
+              setCatalogView("library");
             }}
             className={`sidebar-source-list-row motion-surface flex w-full items-center justify-between px-2 py-1.5 text-[13px] ${
-              filter === "all" && !activePlaylistId
+              filter === "all" && !activePlaylistId && catalogView === "library"
                 ? "border border-[var(--sidebar-row-selected-border)] bg-[var(--sidebar-row-selected-bg)] text-[var(--color-text)] shadow-[var(--shadow-control-selected)]"
                 : "border border-transparent text-[var(--color-text)] hover:bg-[var(--sidebar-row-overlay-bg)]"
             }`}
@@ -173,9 +188,12 @@ export function Sidebar({ header, previewMode = false }: SidebarProps = {}) {
             onClick={() => {
               setFilter("separated");
               setActivePlaylist(null);
+              setCatalogView("library");
             }}
             className={`sidebar-source-list-row motion-surface flex w-full items-center justify-between px-2 py-1.5 text-[13px] ${
-              filter === "separated" && !activePlaylistId
+              filter === "separated" &&
+              !activePlaylistId &&
+              catalogView === "library"
                 ? "border border-[var(--sidebar-row-selected-border)] bg-[var(--sidebar-row-selected-bg)] text-[var(--color-text)] shadow-[var(--shadow-control-selected)]"
                 : "border border-transparent text-[var(--color-text)] hover:bg-[var(--sidebar-row-overlay-bg)]"
             }`}
@@ -190,6 +208,71 @@ export function Sidebar({ header, previewMode = false }: SidebarProps = {}) {
           </button>
         </div>
       )}
+
+      {!activePlaylistId &&
+      (sources.some((source) => source.enabled && source.installed_version) ||
+        youtubeSourceEnabled) ? (
+        <div className="mt-4 shrink-0 space-y-0.5 px-2">
+          <div className="px-2 pb-1 text-[11px] font-semibold tracking-wide text-[var(--color-text-dim)]">
+            {t("sidebar.onlineSources")}
+          </div>
+          {sources
+            .filter((source) => source.enabled && source.installed_version)
+            .map((source) => (
+              <button
+                key={source.source_id}
+                type="button"
+                aria-current={
+                  catalogView === "streaming" &&
+                  activeSourceId === source.source_id
+                    ? "page"
+                    : undefined
+                }
+                onClick={() => {
+                  setActiveSource(source.source_id);
+                  setActivePlaylist(null);
+                }}
+                className={`sidebar-source-list-row motion-surface flex w-full items-center justify-between px-2 py-1.5 text-[13px] ${catalogView === "streaming" && activeSourceId === source.source_id ? "border border-[var(--sidebar-row-selected-border)] bg-[var(--sidebar-row-selected-bg)]" : "border border-transparent hover:bg-[var(--sidebar-row-overlay-bg)]"}`}
+              >
+                <span className="flex items-center gap-2">
+                  <Music2 size={14} aria-hidden="true" />
+                  <span>{source.name}</span>
+                </span>
+                {sourceStates[source.source_id]?.session?.signed_in &&
+                !sourceStates[source.source_id]?.session?.expired ? (
+                  <span
+                    role="img"
+                    aria-label={t("catalog.streaming.signedIn")}
+                    className="size-2 rounded-full bg-[var(--color-success)]"
+                  />
+                ) : !source.runtime_ready || source.state !== "ready" ? (
+                  <span className="text-[11px] text-[var(--color-warning)]">
+                    {t("catalog.streaming.unavailable")}
+                  </span>
+                ) : null}
+              </button>
+            ))}
+          {youtubeSourceEnabled ? (
+            <button
+              type="button"
+              data-youtube-link-trigger="true"
+              aria-haspopup="dialog"
+              aria-expanded={youtubeLinkOpen}
+              aria-keyshortcuts={youtubeShortcut}
+              onClick={() => setYoutubeLinkOpen(!youtubeLinkOpen)}
+              className={`sidebar-source-list-row motion-surface flex w-full items-center justify-between px-2 py-1.5 text-[13px] border border-transparent text-[var(--color-text)] hover:bg-[var(--sidebar-row-overlay-bg)]`}
+            >
+              <span className="flex items-center gap-2">
+                <Link2 size={14} className="text-[var(--color-accent)]" />
+                <span>{t("sidebar.youtubeLink")}</span>
+              </span>
+              <span className="text-[11px] text-[var(--color-text-dim)]">
+                {youtubeShortcut}
+              </span>
+            </button>
+          ) : null}
+        </div>
+      ) : null}
 
       <div
         className={`shrink-0 space-y-0.5 px-2 ${previewMode ? "mt-3" : "mt-4"}`}
@@ -215,7 +298,10 @@ export function Sidebar({ header, previewMode = false }: SidebarProps = {}) {
             {playlists.map((playlist) => (
               <button
                 key={playlist.id}
-                onClick={() => setActivePlaylist(playlist.id)}
+                onClick={() => {
+                  setCatalogView("library");
+                  setActivePlaylist(playlist.id);
+                }}
                 data-preview-playlist-switch={previewMode ? "true" : undefined}
                 aria-current={
                   activePlaylistId === playlist.id ? "page" : undefined

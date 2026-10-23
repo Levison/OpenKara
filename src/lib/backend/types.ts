@@ -7,6 +7,7 @@ import type {
   CoverArtBytes,
   CoverArtSize,
   DebugInfo,
+  DeleteLibraryResult,
   DeleteSongsResult,
   DeleteStemsResult,
   DowngradeResult,
@@ -21,6 +22,21 @@ import type {
   IntegrityReport,
   LibraryRegistrySnapshot,
   LibrarySortMode,
+  LibraryDecisionAction,
+  OnlineSourceId,
+  OnlineSourceSnapshot,
+  RevealTargets,
+  StreamingImportJobSnapshot,
+  StreamingImportProgress,
+  StreamingPlaylistDetail,
+  StreamingPlaylistListing,
+  SourceSnapshot,
+  AuthChallenge,
+  AuthPollResult,
+  StreamingTrackListing,
+  StreamingSessionSnapshot,
+  StreamingTrack,
+  VideoQueueItem,
   LyricsOnlineFetchIntent,
   LyricsPayload,
   ModelBootstrapStatusSnapshot,
@@ -165,7 +181,7 @@ export interface LibrarySetupBackend {
     libraryId: string,
     displayName: string,
   ): Promise<LibraryRegistrySnapshot>;
-  deleteLibrary(libraryId: string): Promise<LibraryRegistrySnapshot>;
+  deleteLibrary(libraryId: string): Promise<DeleteLibraryResult>;
 }
 
 export interface RemoteRepositoryBackend {
@@ -242,6 +258,11 @@ export interface SettingsBackend {
   setLibrarySortMode(mode: LibrarySortMode): Promise<AppSettings>;
   setThemePreference(preference: ThemePreference): Promise<AppSettings>;
   setUpdatePolicy(policy: UpdatePolicy): Promise<AppSettings>;
+  listOnlineSources(): Promise<OnlineSourceSnapshot[]>;
+  setOnlineSourceEnabled(
+    sourceId: OnlineSourceId,
+    enabled: boolean,
+  ): Promise<AppSettings>;
   getModelBootstrapStatus(): Promise<ModelBootstrapStatusSnapshot>;
   getModelStatus(variant: string): Promise<ModelStatusSnapshot>;
   downloadModel(variant: string): Promise<ModelBootstrapStatusSnapshot>;
@@ -312,6 +333,85 @@ export interface PlaylistBackend {
   ): Promise<void>;
 }
 
+export interface CatalogBackend {
+  listStreamingSources(): Promise<SourceSnapshot[]>;
+  refreshStreamingSources(): Promise<SourceSnapshot[]>;
+  installStreamingSource(
+    sourceId: OnlineSourceId,
+    version?: string | null,
+  ): Promise<SourceSnapshot>;
+  cancelStreamingSourceInstall(sourceId: OnlineSourceId): Promise<void>;
+  setStreamingSourceEnabled(
+    sourceId: OnlineSourceId,
+    enabled: boolean,
+    stopWork?: boolean,
+  ): Promise<SourceSnapshot>;
+  uninstallStreamingSource(
+    sourceId: OnlineSourceId,
+    stopWork: boolean,
+    removeCredentials: boolean,
+  ): Promise<SourceSnapshot>;
+  pinStreamingSource(
+    sourceId: OnlineSourceId,
+    version?: string | null,
+  ): Promise<SourceSnapshot>;
+  getStreamingSession(
+    sourceId: OnlineSourceId,
+  ): Promise<StreamingSessionSnapshot>;
+  openStreamingSignIn(sourceId: OnlineSourceId): Promise<AuthChallenge>;
+  pollStreamingSignIn(
+    sourceId: OnlineSourceId,
+    challenge: string,
+  ): Promise<AuthPollResult>;
+  cancelStreamingSignIn(
+    sourceId: OnlineSourceId,
+    challenge: string,
+  ): Promise<void>;
+  signOutStreamingSource(
+    sourceId: OnlineSourceId,
+    stopWork?: boolean,
+  ): Promise<StreamingSessionSnapshot>;
+  listStreamingLikedTracks(
+    sourceId: OnlineSourceId,
+    cursor?: string | null,
+  ): Promise<StreamingTrackListing>;
+  getStreamingTracks(
+    sourceId: OnlineSourceId,
+    remoteTrackIds: string[],
+  ): Promise<StreamingTrack[]>;
+  listStreamingPlaylists(
+    sourceId: OnlineSourceId,
+    cursor?: string | null,
+  ): Promise<StreamingPlaylistListing>;
+  getStreamingPlaylist(
+    sourceId: OnlineSourceId,
+    remotePlaylistId: string,
+    cursor?: string | null,
+  ): Promise<StreamingPlaylistDetail>;
+  searchStreamingSource(
+    sourceId: OnlineSourceId,
+    query: string,
+    cursor?: string | null,
+  ): Promise<StreamingTrackListing>;
+  startStreamingImport(
+    sourceId: OnlineSourceId,
+    remoteTrackIds: string[],
+    remotePlaylistId: string | null,
+    jobId: string,
+  ): Promise<StreamingImportProgress>;
+  continueStreamingImport(
+    action: LibraryDecisionAction,
+  ): Promise<StreamingImportProgress>;
+  cancelStreamingImport(): Promise<void>;
+  getStreamingImportStatus(): Promise<StreamingImportJobSnapshot | null>;
+  resolveVideoSourceUrl(
+    sourceId: OnlineSourceId,
+    url: string,
+  ): Promise<VideoQueueItem[]>;
+  getRevealTargets(songId: string): Promise<RevealTargets>;
+  revealInFolder(path: string): Promise<void>;
+}
+
 export interface CdgBackend {
   getCdgFrame(
     songId: string,
@@ -338,4 +438,5 @@ export interface Backend {
   maintenance: MaintenanceBackend;
   playlist: PlaylistBackend;
   cdg: CdgBackend;
+  catalog: CatalogBackend;
 }

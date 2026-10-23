@@ -1,6 +1,7 @@
 import { listen } from "@tauri-apps/api/event";
 import type {
   BatchSeparationProgress,
+  CommandError,
   ModelBootstrapStatusSnapshot,
   PlaybackEndedEvent,
   PlaybackErrorEvent,
@@ -13,6 +14,10 @@ import type {
   SeparationCompleteEvent,
   SeparationErrorEvent,
   SeparationProgressEvent,
+  StreamingImportEvent,
+  StreamingImportCompleteEvent,
+  StreamingSessionSnapshot,
+  SourceSnapshot,
   TrackTransitionedEvent,
   UploadCompleteEvent,
   UploadErrorEvent,
@@ -43,6 +48,15 @@ export interface RuntimeEventMap {
   "remote-playback-reconnect": RemotePlaybackReconnectEvent;
   "remote-playback-resync": RemotePlaybackResyncEvent;
   "remote-playback-failed": RemotePlaybackFailedEvent;
+  "streaming-sign-in-complete": StreamingSessionSnapshot;
+  "streaming-sign-in-error": {
+    source_id: string;
+    challenge: string;
+    error: CommandError;
+  };
+  "streaming-source-status": SourceSnapshot;
+  "streaming-import-progress": StreamingImportEvent;
+  "streaming-import-complete": StreamingImportCompleteEvent;
 }
 
 export type RuntimeEventName = keyof RuntimeEventMap;
@@ -109,6 +123,11 @@ export function createRecordingRuntimeEventSource(): RuntimeEventSource & {
     "remote-playback-reconnect": new Set(),
     "remote-playback-resync": new Set(),
     "remote-playback-failed": new Set(),
+    "streaming-sign-in-complete": new Set(),
+    "streaming-sign-in-error": new Set(),
+    "streaming-source-status": new Set(),
+    "streaming-import-progress": new Set(),
+    "streaming-import-complete": new Set(),
   };
 
   return {

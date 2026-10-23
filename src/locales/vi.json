@@ -108,7 +108,9 @@
       "title": "Nâng tất cả bài hát lên 4 bè",
       "message": "Thao tác này sẽ tách lại toàn bộ bài hát bằng chế độ 4 bè. Dung lượng đĩa dùng cho các bè sẽ tăng khoảng gấp đôi.",
       "confirm": "Nâng tất cả"
-    }
+    },
+    "onlineSources": "NGUỒN TRỰC TUYẾN",
+    "youtubeLink": "Liên kết YouTube"
   },
   "toolbar": {
     "import": "Nhập",
@@ -188,7 +190,19 @@
     },
     "modelPreparing": "Đang chuẩn bị mô hình tách…",
     "cancelSeparation": "Hủy tách",
-    "usingCachedSeparation": "Đang dùng kết quả tách đã lưu"
+    "usingCachedSeparation": "Đang dùng kết quả tách đã lưu",
+    "confirmDeleteTitle_one": "Delete {{count}} Track",
+    "revealSongFile": "Hiện tệp bài hát",
+    "revealStems": "Mở thư mục stem",
+    "decision": {
+      "title": "Quyết định thư viện",
+      "importConflict": "Bài này đã có trong thư viện nhưng tệp khác. Giữ bài trong thư viện hoặc thay thế.",
+      "keep": "Giữ bài trong thư viện",
+      "replace": "Thay bài trong thư viện",
+      "applyToRemaining": "Áp dụng cho các xung đột còn lại",
+      "librarySong": "Bài trong thư viện",
+      "incoming": "Tệp đang nhập"
+    }
   },
   "player": {
     "previous": "Trước",
@@ -325,6 +339,55 @@
     "failedToLoad": "Không tải được thuộc tính"
   },
   "settings": {
+    "streaming": {
+      "title": "Streaming Sources",
+      "refresh": "Check for sources and updates",
+      "trustNotice": "Install reviewed source packages only. Their code runs on your computer and can access credentials you provide. A signature identifies the publisher; it is not a sandbox.",
+      "empty": "No sources are available. Check for sources to try again.",
+      "publisher": "Publisher / package",
+      "license": "License",
+      "installed": "Installed version",
+      "notInstalled": "Not installed",
+      "available": "Available version",
+      "runtime": "Runtime",
+      "runtimeReady": "Ready",
+      "runtimeMissing": "Download required",
+      "state": "Source state",
+      "authentication": "Account",
+      "signedOut": "Signed out",
+      "staged": "Version {{version}} waits for active work to finish.",
+      "activeWork": "Active work",
+      "install": "Install",
+      "update": "Update",
+      "disable": "Disable",
+      "enable": "Enable",
+      "pin": "Pin installed version",
+      "unpin": "Remove pin",
+      "uninstall": "Uninstall",
+      "confirmUninstall": "Uninstall source",
+      "confirmDisable": "Disable source",
+      "libraryRetained": "Imported songs and playlists stay in your library.",
+      "stopWorkBody": "This action must stop the following work",
+      "stopWork": "Stop active source work",
+      "credentialsChoice": "Choose what to do with saved credentials",
+      "retainCredentials": "Keep saved credentials",
+      "removeCredentials": "Remove saved credentials",
+      "states": {
+        "not_installed": "Not installed",
+        "installing": "Installing",
+        "ready": "Ready",
+        "disabled": "Disabled",
+        "update_required": "Update required",
+        "unavailable": "Unavailable",
+        "waiting_for_idle": "Waiting for active work",
+        "cancelling": "Cancelling"
+      },
+      "work": {
+        "authentication": "Sign-in",
+        "preview": "Online preview",
+        "import": "Streaming import"
+      }
+    },
     "title": "Tùy chọn",
     "library": {
       "label": "Thư viện Karaoke",
@@ -388,7 +451,9 @@
       "existingRemoteLibraries": "Kho lưu trữ từ xa hiện có",
       "connectRemoteGoogleDrive": "Kết nối tới Google Drive",
       "connectRemoteDropbox": "Kết nối tới Dropbox",
-      "connectRemoteWebdav": "Kết nối"
+      "connectRemoteWebdav": "Kết nối",
+      "deleteRemoteRepositoryWarning": "Thao tác này xóa vĩnh viễn kho lưu trữ từ xa khỏi {{provider}} tại {{path}}. Để chỉ xóa kết nối của thiết bị này, hãy chọn {{disconnectAction}}.",
+      "remoteDeletionSkipped": "Kết nối cục bộ đã được xóa, nhưng kho lưu trữ từ xa vẫn còn trong {{provider}} vì OpenKara không thể truy cập bằng kết nối hoặc thông tin xác thực hiện tại. Nếu cần, hãy kết nối lại rồi xóa nó khỏi {{provider}}."
     },
     "stemMode": {
       "label": "Chế độ tách bè",
@@ -675,6 +740,12 @@
     "lyricsBlurInactive": {
       "enable": "Làm mờ lời chưa/đã hát",
       "description": "Làm mềm các dòng trước và sau. Hãy tắt nếu cần đọc trước khi hát."
+    },
+    "onlineSources": {
+      "label": "Nguồn trực tuyến",
+      "description": "Bật nguồn nhạc hoặc video. Cả hai đều tắt cho đến khi bạn chọn.",
+      "youtube": "YouTube",
+      "youtubeDescription": "Dán liên kết video hoặc danh sách phát công khai vào hàng đợi. OpenKara không tải âm thanh YouTube."
     }
   },
   "bootstrap": {
@@ -718,6 +789,13 @@
     "confirmRemoveSingerMessage": "Ca sĩ này đang được gán cho các bài hát trong hàng chờ. Xóa họ cũng sẽ xóa những bài hát đó khỏi hàng chờ."
   },
   "errors": {
+    "streaming_source_unavailable": "Source unavailable",
+    "streaming_unsupported_operation": "Operation not supported",
+    "streaming_source_not_found": "Source not found",
+    "streaming_challenge_expired": "Sign-in challenge expired",
+    "streaming_invalid_cursor": "This page expired. Load it again.",
+    "streaming_work_active": "Source work is active",
+    "streaming_cancelled": "Source operation cancelled",
     "database_unavailable": "Lỗi cơ sở dữ liệu",
     "media_read_failed": "Nhập thất bại",
     "song_not_found": "Không tìm thấy bài hát",
@@ -736,7 +814,11 @@
     "separation_failed": "Tách thất bại",
     "internal": "Lỗi nội bộ",
     "remote_repository_unavailable": "Kho lưu trữ từ xa không khả dụng",
-    "somethingWentWrong": "Đã xảy ra lỗi"
+    "somethingWentWrong": "Đã xảy ra lỗi",
+    "online_source_disabled": "Nguồn trực tuyến này đang tắt.",
+    "streaming_auth_failed": "Đăng nhập thất bại",
+    "streaming_session_expired": "Phiên nguồn streaming đã hết hạn. Đăng nhập lại.",
+    "video_source_unavailable": "Không thể phát video này với tư cách khách."
   },
   "updater": {
     "available": "Đã có phiên bản {{version}}",
@@ -746,5 +828,100 @@
     "restartToApply": "Bản cập nhật đã sẵn sàng — khởi động lại để áp dụng",
     "restart": "Khởi động lại",
     "failed": "Cập nhật thất bại — hãy tải bản phát hành mới nhất theo cách thủ công"
+  },
+  "catalog": {
+    "streaming": {
+      "title": "Streaming Source",
+      "signOut": "Đăng xuất",
+      "sessionExpired": "Phiên đã hết hạn. Đăng nhập lại.",
+      "liked": "Bài hát đã thích",
+      "playlists": "Danh sách phát",
+      "searchPlaceholder": "Search source songs",
+      "importTrack": "Nhập",
+      "importPlaylist": "Nhập danh sách phát",
+      "connect": "Sign in",
+      "clearSearch": "Xóa tìm kiếm",
+      "tabsLabel": "Source library sections",
+      "resultsTab": "Kết quả cho “{{query}}”",
+      "accountMenu": "Menu tài khoản",
+      "importTrackLabel": "Nhập “{{title}}”",
+      "statusNoRights": "Không có quyền phát",
+      "statusNoRightsHint": "Your account cannot play this song, so it cannot be imported.",
+      "statusTrial": "Chỉ có đoạn nghe thử",
+      "statusTrialHint": "Only a trial clip is available, so this song cannot be imported.",
+      "statusImporting": "Đang nhập…",
+      "statusImported": "Đã có trong thư viện",
+      "statusFailed": "Nhập thất bại",
+      "likedEmpty": "Chưa có bài hát nào được thích",
+      "playlistsEmpty": "Chưa có danh sách phát",
+      "resultsEmpty": "Không có kết quả cho “{{query}}”",
+      "playlistEmpty": "Danh sách phát này không có bài hát",
+      "loadFailed": "Không thể tải danh sách này.",
+      "importDone": "Đã nhập {{imported}} · bỏ qua {{skipped}}",
+      "viewSkipped": "Xem mục đã bỏ qua",
+      "hideSkipped": "Ẩn mục đã bỏ qua",
+      "skipReason": {
+        "refusal": "Không thể nhập",
+        "cancelled": "Đã hủy",
+        "import_failed": "Nhập thất bại"
+      },
+      "importProgressLabel": "Đang nhập",
+      "connectTitle": "Connect your account",
+      "connectBody": "Đăng nhập để duyệt bài hát đã thích và danh sách phát, rồi nhập những bài bạn có thể phát. Các tệp đã nhập thuộc về thư viện của bạn.",
+      "connectHintWindow": "Complete sign-in in the source window.",
+      "connectHintRights": "Không thể nhập bài hát không có quyền phát hoặc chỉ có đoạn nghe thử.",
+      "signInFailed": "Đăng nhập thất bại: {{message}}",
+      "songCount_other": "{{count}} bài hát",
+      "statusQueued": "Đang chờ",
+      "statusDownloading": "Đang tải {{percent}}%",
+      "statusDownloadingUnknown": "Đang tải…",
+      "statusCancelled": "Đã hủy",
+      "importSelected": "Nhập {{selected}} bài đã chọn",
+      "selectAll": "Chọn tất cả bài hát",
+      "selectRow": "Chọn {{title}}",
+      "cancelImport": "Hủy",
+      "cancelling": "Đang hủy…",
+      "skippedSoFar": "Bỏ qua {{skipped}}",
+      "back": "Quay lại",
+      "byCreator": "bởi {{creator}}",
+      "updatedOn": "cập nhật {{date}}",
+      "importableCount": "{{importable}} có thể nhập",
+      "select": "Chọn",
+      "selectDone": "Xong",
+      "hideUnavailable": "Ẩn bài không khả dụng",
+      "unavailableHidden": "Đã ẩn {{hidden}} bài không khả dụng",
+      "trackListLabel": "Bài hát",
+      "retryImportLabel": "Thử nhập lại “{{title}}”",
+      "importingProgress": "Đang nhập {{completed}} trên {{total}}",
+      "loadingMore": "Đang tải thêm bài hát…",
+      "refusalReason": {
+        "trial_clip": "Only a trial clip is available",
+        "no_play_rights": "Không có quyền phát",
+        "empty_url": "Không có âm thanh",
+        "unavailable": "This source cannot provide this song"
+      },
+      "cantPlayTitle": "Không thể phát “{{title}}”",
+      "importToSing": "Nhập để hát",
+      "previewHint": "Nghe thử trực tuyến. Hãy nhập bài hát để hát, tách giọng hoặc thêm lời.",
+      "search": "Search",
+      "results": "Search results",
+      "loadMore": "Load more",
+      "importLoaded": "Import loaded songs",
+      "scanCode": "Scan to sign in",
+      "unavailable": "Source unavailable. Open Settings to manage it.",
+      "noOperations": "This source has no supported browsing operations.",
+      "signedIn": "Signed in"
+    }
+  },
+  "youtube": {
+    "pasteLink": "Dán liên kết YouTube",
+    "pastePlaceholder": "https://www.youtube.com/watch?v=…",
+    "addToQueue": "Thêm vào hàng đợi",
+    "invalidUrl": "Đó không phải liên kết xem hoặc danh sách phát YouTube công khai.",
+    "ageRestricted": "Video này bị giới hạn độ tuổi.",
+    "private": "Video này ở chế độ riêng tư.",
+    "unlisted": "Video này không được liệt kê.",
+    "popoverTitle": "Thêm liên kết YouTube",
+    "popoverHint": "Video hoặc danh sách phát công khai. Phát từ YouTube — OpenKara không tải xuống âm thanh."
   }
 }

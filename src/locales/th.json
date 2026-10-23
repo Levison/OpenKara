@@ -108,7 +108,9 @@
       "title": "อัปเกรดทุกเพลงเป็น 4สเต็ม",
       "message": "การดำเนินการนี้จะแยกเสียงทุกเพลงใหม่โดยใช้โหมด 4สเต็ม การใช้พื้นที่ดิสก์สำหรับสเต็มจะเพิ่มขึ้นราวสองเท่า",
       "confirm": "อัปเกรดทั้งหมด"
-    }
+    },
+    "onlineSources": "แหล่งออนไลน์",
+    "youtubeLink": "ลิงก์ YouTube"
   },
   "toolbar": {
     "import": "นำเข้า",
@@ -188,7 +190,19 @@
     },
     "modelPreparing": "กำลังเตรียมโมเดลแยกเสียง…",
     "cancelSeparation": "ยกเลิกการแยกเสียง",
-    "usingCachedSeparation": "กำลังใช้ผลการแยกเสียงจากแคช"
+    "usingCachedSeparation": "กำลังใช้ผลการแยกเสียงจากแคช",
+    "confirmDeleteTitle_one": "Delete {{count}} Track",
+    "revealSongFile": "แสดงไฟล์เพลง",
+    "revealStems": "เปิดโฟลเดอร์สเต็ม",
+    "decision": {
+      "title": "การตัดสินใจของคลัง",
+      "importConflict": "รายการนี้อยู่ในคลังแล้วแต่ไฟล์ต่างกัน เก็บเพลงในคลังหรือแทนที่",
+      "keep": "เก็บเพลงในคลัง",
+      "replace": "แทนที่เพลงในคลัง",
+      "applyToRemaining": "ใช้กับความขัดแย้งที่เหลือ",
+      "librarySong": "เพลงในคลัง",
+      "incoming": "ไฟล์ที่นำเข้า"
+    }
   },
   "player": {
     "previous": "ก่อนหน้า",
@@ -325,6 +339,55 @@
     "failedToLoad": "โหลดคุณสมบัติล้มเหลว"
   },
   "settings": {
+    "streaming": {
+      "title": "Streaming Sources",
+      "refresh": "Check for sources and updates",
+      "trustNotice": "Install reviewed source packages only. Their code runs on your computer and can access credentials you provide. A signature identifies the publisher; it is not a sandbox.",
+      "empty": "No sources are available. Check for sources to try again.",
+      "publisher": "Publisher / package",
+      "license": "License",
+      "installed": "Installed version",
+      "notInstalled": "Not installed",
+      "available": "Available version",
+      "runtime": "Runtime",
+      "runtimeReady": "Ready",
+      "runtimeMissing": "Download required",
+      "state": "Source state",
+      "authentication": "Account",
+      "signedOut": "Signed out",
+      "staged": "Version {{version}} waits for active work to finish.",
+      "activeWork": "Active work",
+      "install": "Install",
+      "update": "Update",
+      "disable": "Disable",
+      "enable": "Enable",
+      "pin": "Pin installed version",
+      "unpin": "Remove pin",
+      "uninstall": "Uninstall",
+      "confirmUninstall": "Uninstall source",
+      "confirmDisable": "Disable source",
+      "libraryRetained": "Imported songs and playlists stay in your library.",
+      "stopWorkBody": "This action must stop the following work",
+      "stopWork": "Stop active source work",
+      "credentialsChoice": "Choose what to do with saved credentials",
+      "retainCredentials": "Keep saved credentials",
+      "removeCredentials": "Remove saved credentials",
+      "states": {
+        "not_installed": "Not installed",
+        "installing": "Installing",
+        "ready": "Ready",
+        "disabled": "Disabled",
+        "update_required": "Update required",
+        "unavailable": "Unavailable",
+        "waiting_for_idle": "Waiting for active work",
+        "cancelling": "Cancelling"
+      },
+      "work": {
+        "authentication": "Sign-in",
+        "preview": "Online preview",
+        "import": "Streaming import"
+      }
+    },
     "title": "การตั้งค่า",
     "library": {
       "label": "คลังเพลงคาราโอเกะ",
@@ -388,7 +451,9 @@
       "existingRemoteLibraries": "ที่เก็บระยะไกลที่มีอยู่",
       "connectRemoteGoogleDrive": "เชื่อมต่อกับ Google Drive",
       "connectRemoteDropbox": "เชื่อมต่อกับ Dropbox",
-      "connectRemoteWebdav": "เชื่อมต่อ"
+      "connectRemoteWebdav": "เชื่อมต่อ",
+      "deleteRemoteRepositoryWarning": "การดำเนินการนี้จะลบที่เก็บระยะไกลจาก {{provider}} ที่ {{path}} อย่างถาวร หากต้องการลบเฉพาะการเชื่อมต่อของอุปกรณ์นี้ ให้เลือก {{disconnectAction}}",
+      "remoteDeletionSkipped": "ลบการเชื่อมต่อในเครื่องแล้ว แต่ที่เก็บระยะไกลยังอยู่ใน {{provider}} เพราะ OpenKara ไม่สามารถเข้าถึงได้ด้วยการเชื่อมต่อหรือข้อมูลรับรองปัจจุบัน หากจำเป็น ให้เชื่อมต่ออีกครั้งแล้วลบจาก {{provider}}"
     },
     "stemMode": {
       "label": "โหมดการแยกสเต็ม",
@@ -675,6 +740,12 @@
     "lyricsBlurInactive": {
       "enable": "เบลอท่อนที่ไม่ใช่ท่อนปัจจุบัน",
       "description": "ทำให้นุ่มทั้งท่อนที่ผ่านไปแล้วและท่อนถัดไป ปิดตัวเลือกนี้ถ้าต้องการอ่านล่วงหน้า"
+    },
+    "onlineSources": {
+      "label": "แหล่งออนไลน์",
+      "description": "เปิดแหล่งเพลงหรือวิดีโอ ทั้งสองจะปิดอยู่จนกว่าคุณจะเลือก",
+      "youtube": "YouTube",
+      "youtubeDescription": "วางลิงก์วิดีโอหรือเพลย์ลิสต์สาธารณะลงในคิว OpenKara ไม่ดาวน์โหลดเสียง YouTube"
     }
   },
   "bootstrap": {
@@ -718,6 +789,13 @@
     "confirmRemoveSingerMessage": "นักร้องคนนี้ถูกกำหนดให้กับเพลงในคิว การลบออกจะลบเพลงเหล่านั้นออกจากคิวด้วย"
   },
   "errors": {
+    "streaming_source_unavailable": "Source unavailable",
+    "streaming_unsupported_operation": "Operation not supported",
+    "streaming_source_not_found": "Source not found",
+    "streaming_challenge_expired": "Sign-in challenge expired",
+    "streaming_invalid_cursor": "This page expired. Load it again.",
+    "streaming_work_active": "Source work is active",
+    "streaming_cancelled": "Source operation cancelled",
     "database_unavailable": "ข้อผิดพลาดฐานข้อมูล",
     "media_read_failed": "นำเข้าล้มเหลว",
     "song_not_found": "ไม่พบเพลง",
@@ -736,7 +814,11 @@
     "separation_failed": "การแยกเสียงล้มเหลว",
     "internal": "ข้อผิดพลาดภายใน",
     "remote_repository_unavailable": "ที่เก็บข้อมูลระยะไกลไม่พร้อมใช้งาน",
-    "somethingWentWrong": "เกิดข้อผิดพลาดบางอย่าง"
+    "somethingWentWrong": "เกิดข้อผิดพลาดบางอย่าง",
+    "online_source_disabled": "แหล่งออนไลน์นี้ปิดอยู่",
+    "streaming_auth_failed": "การลงชื่อเข้าใช้ล้มเหลว",
+    "streaming_session_expired": "เซสชันแหล่งสตรีมมิงหมดอายุ ลงชื่อเข้าใช้อีกครั้ง",
+    "video_source_unavailable": "เล่นวิดีโอนี้ในฐานะผู้เยี่ยมชมไม่ได้"
   },
   "updater": {
     "available": "มีเวอร์ชัน {{version}} ให้ใช้งาน",
@@ -746,5 +828,100 @@
     "restartToApply": "การอัปเดตพร้อมแล้ว — รีสตาร์ทเพื่อใช้งาน",
     "restart": "รีสตาร์ท",
     "failed": "การอัปเดตล้มเหลว — ดาวน์โหลดรุ่นล่าสุดด้วยตนเอง"
+  },
+  "catalog": {
+    "streaming": {
+      "title": "Streaming Source",
+      "signOut": "ออกจากระบบ",
+      "sessionExpired": "เซสชันหมดอายุ ลงชื่อเข้าใช้อีกครั้ง",
+      "liked": "เพลงที่ถูกใจ",
+      "playlists": "เพลย์ลิสต์",
+      "searchPlaceholder": "Search source songs",
+      "importTrack": "นำเข้า",
+      "importPlaylist": "นำเข้าเพลย์ลิสต์",
+      "connect": "Sign in",
+      "clearSearch": "ล้างการค้นหา",
+      "tabsLabel": "Source library sections",
+      "resultsTab": "ผลลัพธ์สำหรับ “{{query}}”",
+      "accountMenu": "เมนูบัญชี",
+      "importTrackLabel": "นำเข้า “{{title}}”",
+      "statusNoRights": "ไม่มีสิทธิ์เล่น",
+      "statusNoRightsHint": "Your account cannot play this song, so it cannot be imported.",
+      "statusTrial": "ฟังตัวอย่างเท่านั้น",
+      "statusTrialHint": "Only a trial clip is available, so this song cannot be imported.",
+      "statusImporting": "กำลังนำเข้า…",
+      "statusImported": "อยู่ในคลังแล้ว",
+      "statusFailed": "นำเข้าไม่สำเร็จ",
+      "likedEmpty": "ยังไม่มีเพลงที่ถูกใจ",
+      "playlistsEmpty": "ยังไม่มีเพลย์ลิสต์",
+      "resultsEmpty": "ไม่พบผลลัพธ์สำหรับ “{{query}}”",
+      "playlistEmpty": "เพลย์ลิสต์นี้ไม่มีเพลง",
+      "loadFailed": "โหลดรายการนี้ไม่สำเร็จ",
+      "importDone": "นำเข้าแล้ว {{imported}} · ข้าม {{skipped}}",
+      "viewSkipped": "ดูรายการที่ข้าม",
+      "hideSkipped": "ซ่อนรายการที่ข้าม",
+      "skipReason": {
+        "refusal": "นำเข้าไม่ได้",
+        "cancelled": "ยกเลิกแล้ว",
+        "import_failed": "นำเข้าไม่สำเร็จ"
+      },
+      "importProgressLabel": "กำลังนำเข้า",
+      "connectTitle": "Connect your account",
+      "connectBody": "ลงชื่อเข้าใช้เพื่อดูเพลงที่ถูกใจและเพลย์ลิสต์ แล้วนำเข้าเพลงที่เล่นได้ ไฟล์ที่นำเข้าจะเป็นของคลังเพลงของคุณ",
+      "connectHintWindow": "Complete sign-in in the source window.",
+      "connectHintRights": "เพลงที่ไม่มีสิทธิ์เล่นหรือมีเพียงคลิปตัวอย่างจะนำเข้าไม่ได้",
+      "signInFailed": "ลงชื่อเข้าใช้ไม่สำเร็จ: {{message}}",
+      "songCount_other": "{{count}} เพลง",
+      "statusQueued": "อยู่ในคิว",
+      "statusDownloading": "กำลังดาวน์โหลด {{percent}}%",
+      "statusDownloadingUnknown": "กำลังดาวน์โหลด…",
+      "statusCancelled": "ยกเลิกแล้ว",
+      "importSelected": "นำเข้าที่เลือก {{selected}} เพลง",
+      "selectAll": "เลือกเพลงทั้งหมด",
+      "selectRow": "เลือก {{title}}",
+      "cancelImport": "ยกเลิก",
+      "cancelling": "กำลังยกเลิก…",
+      "skippedSoFar": "ข้าม {{skipped}}",
+      "back": "กลับ",
+      "byCreator": "โดย {{creator}}",
+      "updatedOn": "อัปเดต {{date}}",
+      "importableCount": "นำเข้าได้ {{importable}} เพลง",
+      "select": "เลือก",
+      "selectDone": "เสร็จสิ้น",
+      "hideUnavailable": "ซ่อนเพลงที่ใช้ไม่ได้",
+      "unavailableHidden": "ซ่อนเพลงที่ใช้ไม่ได้ {{hidden}} เพลง",
+      "trackListLabel": "เพลง",
+      "retryImportLabel": "ลองนำเข้า “{{title}}” อีกครั้ง",
+      "importingProgress": "กำลังนำเข้า {{completed}} จาก {{total}}",
+      "loadingMore": "กำลังโหลดเพลงเพิ่มเติม…",
+      "refusalReason": {
+        "trial_clip": "Only a trial clip is available",
+        "no_play_rights": "ไม่มีสิทธิ์เล่นเพลง",
+        "empty_url": "ไม่มีเสียงให้ใช้งาน",
+        "unavailable": "This source cannot provide this song"
+      },
+      "cantPlayTitle": "เล่น “{{title}}” ไม่ได้",
+      "importToSing": "นำเข้าเพื่อร้อง",
+      "previewHint": "ตัวอย่างแบบสตรีม นำเข้าเพลงเพื่อร้อง แยกเสียงร้อง หรือเพิ่มเนื้อเพลง",
+      "search": "Search",
+      "results": "Search results",
+      "loadMore": "Load more",
+      "importLoaded": "Import loaded songs",
+      "scanCode": "Scan to sign in",
+      "unavailable": "Source unavailable. Open Settings to manage it.",
+      "noOperations": "This source has no supported browsing operations.",
+      "signedIn": "Signed in"
+    }
+  },
+  "youtube": {
+    "pasteLink": "วางลิงก์ YouTube",
+    "pastePlaceholder": "https://www.youtube.com/watch?v=…",
+    "addToQueue": "เพิ่มในคิว",
+    "invalidUrl": "นั่นไม่ใช่ลิงก์รับชมหรือเพลย์ลิสต์ YouTube สาธารณะ",
+    "ageRestricted": "วิดีโอนี้มีข้อจำกัดด้านอายุ",
+    "private": "วิดีโอนี้เป็นส่วนตัว",
+    "unlisted": "วิดีโอนี้ไม่อยู่ในรายการ",
+    "popoverTitle": "เพิ่มลิงก์ YouTube",
+    "popoverHint": "วิดีโอหรือเพลย์ลิสต์สาธารณะ เล่นจาก YouTube — OpenKara ไม่ดาวน์โหลดเสียง"
   }
 }

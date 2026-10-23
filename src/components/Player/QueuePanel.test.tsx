@@ -63,6 +63,21 @@ vi.mock("./SingerPickerDialog", () => ({
   SingerPickerDialog: () => <div data-testid="singer-picker-dialog" />,
 }));
 
+vi.mock("@/stores/settings-store", () => ({
+  useSettingsStore: (
+    selector: (state: { youtubeSourceEnabled: boolean }) => unknown,
+  ) => selector({ youtubeSourceEnabled: false }),
+}));
+
+vi.mock("@/stores/catalog-store", () => ({
+  useCatalogStore: (
+    selector: (state: {
+      videoItems: Record<string, never>;
+      previewItems: Record<string, never>;
+    }) => unknown,
+  ) => selector({ videoItems: {}, previewItems: {} }),
+}));
+
 describe("QueuePanel", () => {
   beforeEach(() => {
     mockQueueState.queue = [];

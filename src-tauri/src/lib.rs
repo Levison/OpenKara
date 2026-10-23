@@ -13,6 +13,7 @@ pub mod automation_report;
 #[cfg(feature = "automation-smoke")]
 pub mod automation_smoke;
 pub mod cache;
+pub mod catalog;
 pub mod cdg;
 pub mod commands;
 pub mod config;
@@ -32,7 +33,10 @@ pub mod runtime_bootstrap_regression;
 pub mod separator;
 pub mod services;
 pub mod smoke;
+pub mod source_host;
 pub mod state;
+#[cfg(feature = "automation-smoke")]
+pub mod streaming_runtime_smoke;
 pub mod system_credentials;
 mod window_shell;
 
@@ -90,6 +94,8 @@ pub fn derive_startup_model_bootstrap(
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let builder = tauri::Builder::default()
+        .manage(std::sync::Arc::new(catalog::TrackMetadataCache::default()))
+        .manage(commands::catalog::SourceAuthentication::default())
         // First plugin: short-circuit a second launch before any state init
         // (single SQLite writer + remote outbox assume one process).
         .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
@@ -171,6 +177,7 @@ pub fn run() {
             commands::playback::get_audio_peaks,
             commands::playback::get_waveform,
             commands::playback::set_preload_candidate,
+            commands::youtube_watch::control_youtube_watch,
             commands::cdg::get_cdg_frame,
             commands::cdg::get_cdg_status,
             commands::airplay::sync_airplay_route_picker,
@@ -200,6 +207,32 @@ pub fn run() {
             commands::settings::set_stem_mode,
             commands::settings::set_model_variant,
             commands::settings::set_language,
+            commands::settings::list_online_sources,
+            commands::settings::set_online_source_enabled,
+            commands::catalog::get_streaming_session,
+            commands::catalog::open_streaming_sign_in,
+            commands::catalog::sign_out_streaming_source,
+            commands::catalog::poll_streaming_sign_in,
+            commands::catalog::cancel_streaming_sign_in,
+            commands::source_host::list_streaming_sources,
+            commands::source_host::refresh_streaming_sources,
+            commands::source_host::install_streaming_source,
+            commands::source_host::cancel_streaming_source_install,
+            commands::source_host::set_streaming_source_enabled,
+            commands::source_host::uninstall_streaming_source,
+            commands::source_host::pin_streaming_source,
+            commands::catalog::list_streaming_liked_tracks,
+            commands::catalog::list_streaming_playlists,
+            commands::catalog::get_streaming_playlist,
+            commands::catalog::get_streaming_tracks,
+            commands::catalog::search_streaming_source,
+            commands::catalog::start_streaming_import,
+            commands::catalog::continue_streaming_import,
+            commands::catalog::cancel_streaming_import,
+            commands::catalog::get_streaming_import_status,
+            commands::catalog::resolve_video_source_url,
+            commands::catalog::get_reveal_targets,
+            commands::catalog::reveal_in_folder,
             commands::settings::set_hide_batch_separate,
             commands::settings::set_cover_art_backdrop,
             commands::settings::set_lyrics_blur_inactive,

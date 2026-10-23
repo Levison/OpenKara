@@ -45,6 +45,17 @@
 - `execution_provider_unavailable`
 - `runtime_post_download_timeout`
 - `separation_failed`
+- `online_source_disabled`
+- `streaming_auth_failed`
+- `streaming_session_expired`
+- `streaming_source_unavailable`
+- `streaming_unsupported_operation`
+- `streaming_source_not_found`
+- `streaming_challenge_expired`
+- `streaming_invalid_cursor`
+- `streaming_work_active`
+- `streaming_cancelled`
+- `video_source_unavailable`
 - `internal`
 
 ## Shared enum: `FallbackAction`
@@ -126,6 +137,29 @@
    - `code = runtime_post_download_timeout`
    - `fallback = retry`
    - UI 使用本地化错误正文，不解析 `message`
+
+### Catalog / Online Sources
+
+1. A disabled Online Source receives a browse, sign-in, import, or resolve command:
+   - `code = online_source_disabled`
+   - `fallback = keep_current_state`
+2. A Streaming Source rejects sign-in:
+   - `code = streaming_auth_failed`
+   - Credentials never appear in the IPC payload or error.
+3. A verified Streaming Source session expires:
+   - `code = streaming_session_expired`
+4. Streaming Source operation errors retain their typed meaning:
+   - `streaming_source_unavailable`: the installed source or its runtime cannot serve the request.
+   - `streaming_unsupported_operation`: the source does not provide the requested capability.
+   - `streaming_source_not_found`: the source id is not known to the host.
+   - `streaming_challenge_expired`: the sign-in challenge is no longer valid.
+   - `streaming_invalid_cursor`: the opaque cursor is invalid for this listing.
+   - `streaming_work_active`: source work must stop before the requested lifecycle action can proceed. The UI must obtain explicit stop consent.
+   - `streaming_cancelled`: the source operation was cancelled.
+   - Disabled sources use `online_source_disabled`; network failures use `network_unavailable`.
+5. A YouTube watch or playlist item is age-restricted, private, unlisted, or otherwise unplayable as a guest:
+   - `code = video_source_unavailable`
+   - `fallback = keep_current_state`
 
 ## Important boundaries
 

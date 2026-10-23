@@ -1,6 +1,8 @@
 import { useCallback, useReducer } from "react";
 import { QueuePanel } from "@/components/Player/QueuePanel";
 import { GlobalProgressBar } from "@/components/Layout/GlobalProgressBar";
+import { StreamingBrowser } from "@/components/Catalog/StreamingBrowser";
+import { StreamingImportBar } from "@/components/Catalog/StreamingImportBar";
 import { PlaybackStage } from "@/components/Playback/PlaybackStage";
 import { SettingsOverlay } from "@/components/Settings/SettingsOverlay";
 import { ModelBootstrapBanner } from "@/components/Bootstrap/ModelBootstrapBanner";
@@ -8,6 +10,7 @@ import { RuntimeUpdateBanner } from "@/components/Bootstrap/RuntimeUpdateBanner"
 import { UpdateBanner } from "@/components/Layout/UpdateBanner";
 import { PlaybackBar } from "@/components/Player/PlaybackBar";
 import { useSettingsStore } from "@/stores/settings-store";
+import { useCatalogStore } from "@/stores/catalog-store";
 import { useQueueStore } from "@/stores/queue-store";
 
 interface MainContentViewProps {
@@ -33,6 +36,14 @@ export function MainContentView({
 }: MainContentViewProps = {}) {
   const settingsOpen = useSettingsStore((s) => s.isOpen);
   const queueOpen = useQueueStore((s) => s.isOpen);
+  const catalogView = useCatalogStore((s) => s.activeView);
+  const sources = useCatalogStore((s) => s.sources);
+  const activeSourceId = useCatalogStore((s) => s.activeSourceId);
+  const streaming =
+    catalogView === "streaming" &&
+    sources.some(
+      (source) => source.source_id === activeSourceId && source.enabled,
+    );
   const [queuePhase, dispatch] = useReducer(
     queueReducer,
     queueOpen ? "visible" : "hidden",
@@ -69,7 +80,8 @@ export function MainContentView({
           {/* App self-update (#255). Preview builds run in a browser with no
               Tauri IPC, so the launch check would only ever reject — skip it. */}
           {!previewMode && <UpdateBanner />}
-          <PlaybackStage />
+          {streaming ? <StreamingBrowser /> : <PlaybackStage />}
+          <StreamingImportBar />
         </div>
         {queueShouldRender && (
           <div

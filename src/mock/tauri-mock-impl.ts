@@ -1,4 +1,9 @@
 import type { InvokeCommand } from "@/lib/tauri/invoke";
+import type {
+  SourceSnapshot,
+  StreamingImportJobSnapshot,
+  StreamingImportProgress,
+} from "@/types/ipc";
 
 export interface MockData {
   songs: MockSong[];
@@ -164,6 +169,155 @@ export function createTauriMock(data: any): TauriMockResult {
   let transportGeneration = 0;
   let rotationState = { ...data.rotationState };
   let settingsSnapshot = { ...data.settings };
+  const sourceSnapshots = ["demo-web", "demo-plugin"].map<SourceSnapshot>(
+    (source_id, index) => ({
+      source_id,
+      owner_binding: `demo/${source_id}`,
+      name: index ? "Plugin Library" : "Web Library",
+      description: "Deterministic UI-only source",
+      license: "MIT",
+      installed_version: "1.0.0",
+      available_version: "1.1.0",
+      staged_version: null,
+      pinned_version: null,
+      enabled: true,
+      runtime_ready: true,
+      running: false,
+      state: "ready",
+      progress: null,
+      last_error: null,
+      active_work: [],
+      manifest: {
+        manifest_version: 1,
+        source_id,
+        package_id: source_id,
+        publisher: "demo",
+        version: "1.0.0",
+        minimum_host_version: "1.0.0",
+        protocol: { majors: [1], minor: 0 },
+        runtime: { kind: "node", major: 22 },
+        entry: "index.js",
+        name: index ? "Plugin Library" : "Web Library",
+        description: "UI-only fixture",
+        license: "MIT",
+        capabilities: index
+          ? ["search", "playlists", "playlist_tracks", "import"]
+          : [
+              "liked_tracks",
+              "playlists",
+              "playlist_tracks",
+              "search",
+              "preview",
+              "import",
+            ],
+        authentication: { flow: index ? "plugin" : "web" },
+        requires_authentication: ["liked_tracks", "playlists"],
+        resource_origins: [],
+        media_origins: [],
+      },
+    }),
+  );
+  const sessions = new Map<string, boolean>();
+  const challenges = new Map<
+    string,
+    { sourceId: string; state: string; polls: number }
+  >();
+  let importSourceId: string | null = null;
+  let importJob: StreamingImportJobSnapshot | null = null;
+  let importCancelled = false;
+  const installations = new Map<string, { cancelled: boolean }>();
+  function source(sourceId: string) {
+    const snapshot = sourceSnapshots.find(
+      (entry) => entry.source_id === sourceId,
+    );
+    if (!snapshot)
+      throw {
+        code: "streaming_source_not_found",
+        message: "Unknown source",
+        retryable: false,
+      };
+    return snapshot;
+  }
+  function changed(sourceId: string) {
+    const snapshot = source(sourceId);
+    emitMockEvent("streaming-source-status", clone(snapshot));
+    return clone(snapshot);
+  }
+  function stopWork(sourceId: string, stop: boolean) {
+    const snapshot = source(sourceId);
+    if (snapshot.active_work.length && !stop)
+      throw {
+        code: "streaming_work_active",
+        message: "Stop active work before continuing",
+        retryable: true,
+      };
+    if (stop) {
+      if (
+        String(currentPlaybackSnapshot.song_id ?? "").startsWith(
+          `stream:${sourceId}:`,
+        )
+      ) {
+        clearPlaybackEnd();
+        currentPlaybackSnapshot = {
+          ...currentPlaybackSnapshot,
+          state: "idle",
+          is_playing: false,
+          song_id: null,
+        };
+      }
+      for (const challenge of challenges.values())
+        if (challenge.sourceId === sourceId) challenge.state = "cancelled";
+      if (importSourceId === sourceId) importCancelled = true;
+      snapshot.active_work = [];
+      snapshot.running = false;
+    }
+  }
+  function session(sourceId: string) {
+    source(sourceId);
+    return {
+      source_id: sourceId,
+      signed_in: sessions.get(sourceId) ?? false,
+      display_name: sessions.get(sourceId) ? "Demo Listener" : null,
+      expired: false,
+    };
+  }
+  function tracks(sourceId: string) {
+    const snapshot = source(sourceId);
+    if (!snapshot.enabled || !snapshot.installed_version)
+      throw {
+        code: "online_source_disabled",
+        message: "Enable the installed source",
+        retryable: false,
+      };
+    return ["Shared Track", "Second Track", "Final Track"].map(
+      (title, index) => ({
+        source_id: sourceId,
+        remote_track_id: index ? String(index + 1) : "shared:/track",
+        title: `${snapshot.name}: ${title}`,
+        artist: "Demo Artist",
+        album: null,
+        duration_ms: 180000,
+        refusal: null,
+        library_song_id: null,
+        cover_url: null,
+      }),
+    );
+  }
+  function page(sourceId: string, cursor?: string | null, query = "") {
+    const values = tracks(sourceId).filter((track) =>
+      track.title.toLowerCase().includes(query.toLowerCase()),
+    );
+    if (cursor && cursor !== `${sourceId}:next`)
+      throw {
+        code: "streaming_invalid_cursor",
+        message: "Cursor belongs to another source or listing",
+        retryable: false,
+      };
+    return {
+      tracks: cursor ? values.slice(2) : values.slice(0, 2),
+      next_cursor: !cursor && values.length > 2 ? `${sourceId}:next` : null,
+    };
+  }
   let currentPlaybackSnapshot = { ...data.playbackSnapshot };
 
   let playbackEndTimer: ReturnType<typeof setTimeout> | null = null;
@@ -510,6 +664,35 @@ export function createTauriMock(data: any): TauriMockResult {
     play: (args: any) => {
       const songId =
         (args && (args.songId || args.song_id)) || data.primarySongHash;
+      for (const snapshot of sourceSnapshots)
+        snapshot.active_work = snapshot.active_work.filter(
+          (work) => work.kind !== "preview",
+        );
+      if (String(songId).startsWith("stream:")) {
+        const match = /^stream:([a-z0-9-]+):(.+)$/.exec(songId);
+        if (!match)
+          throw {
+            code: "invalid_preview",
+            message: "Invalid preview identity",
+            retryable: false,
+          };
+        const remoteId = decodeURIComponent(match[2]);
+        if (
+          !tracks(match[1]).some((track) => track.remote_track_id === remoteId)
+        )
+          throw {
+            code: "unknown_track",
+            message: "Unknown preview track",
+            retryable: false,
+          };
+        source(match[1]).active_work.push({
+          id: 1000,
+          kind: "preview",
+          cancelling: false,
+        });
+        source(match[1]).running = true;
+        changed(match[1]);
+      }
       const song = mockSongs.find((s: any) => s.hash === songId);
       const durationMs = song ? song.duration_ms : 300000;
       const positionMs = resolvePlayStartMs(songId, durationMs);
@@ -775,6 +958,376 @@ export function createTauriMock(data: any): TauriMockResult {
       settingsSnapshot = {
         ...settingsSnapshot,
         update_policy: (args && args.policy) || "notify",
+      };
+      return settingsSnapshot;
+    },
+    list_online_sources: () => [
+      {
+        id: "youtube",
+        kind: "video",
+        enabled: !!settingsSnapshot.youtube_source_enabled,
+        capabilities: {
+          sign_in: false,
+          browse: false,
+          import: false,
+          resolve_video: !!settingsSnapshot.youtube_source_enabled,
+        },
+      },
+    ],
+    list_streaming_sources: () => clone(sourceSnapshots),
+    refresh_streaming_sources: () => clone(sourceSnapshots),
+    install_streaming_source: async (args: {
+      sourceId: string;
+      version?: string;
+    }) => {
+      const s = source(args.sourceId);
+      if (installations.has(args.sourceId))
+        throw {
+          code: "install_in_progress",
+          message: "Installation already running",
+          retryable: true,
+        };
+      const operation = { cancelled: false };
+      installations.set(args.sourceId, operation);
+      s.state = "installing";
+      s.progress = { phase: "download", completed: 0, total: 100 };
+      changed(args.sourceId);
+      await new Promise<void>((resolve) => setTimeout(resolve, 20));
+      installations.delete(args.sourceId);
+      if (operation.cancelled)
+        throw {
+          code: "streaming_cancelled",
+          message: "Installation cancelled",
+          retryable: true,
+        };
+      s.installed_version =
+        args.version ?? s.pinned_version ?? s.available_version;
+      s.state = s.enabled ? "ready" : "disabled";
+      s.runtime_ready = true;
+      s.progress = null;
+      return changed(args.sourceId);
+    },
+    cancel_streaming_source_install: (args: { sourceId: string }) => {
+      const s = source(args.sourceId);
+      const operation = installations.get(args.sourceId);
+      if (operation) operation.cancelled = true;
+      s.progress = null;
+      s.state = s.installed_version
+        ? s.enabled
+          ? "ready"
+          : "disabled"
+        : "not_installed";
+      changed(args.sourceId);
+    },
+    set_streaming_source_enabled: (args: {
+      sourceId: string;
+      enabled: boolean;
+      stopWork?: boolean;
+    }) => {
+      const s = source(args.sourceId);
+      if (!s.installed_version)
+        throw {
+          code: "not_installed",
+          message: "Install the source first",
+          retryable: false,
+        };
+      if (!args.enabled) stopWork(args.sourceId, !!args.stopWork);
+      s.enabled = args.enabled;
+      s.state = args.enabled ? "ready" : "disabled";
+      return changed(args.sourceId);
+    },
+    uninstall_streaming_source: (args: {
+      sourceId: string;
+      stopWork?: boolean;
+      removeCredentials: boolean;
+    }) => {
+      if (typeof args.removeCredentials !== "boolean")
+        throw {
+          code: "credential_choice_required",
+          message: "Choose whether to remove saved sign-in",
+          retryable: false,
+        };
+      stopWork(args.sourceId, !!args.stopWork);
+      const s = source(args.sourceId);
+      s.installed_version = null;
+      s.enabled = false;
+      s.state = "not_installed";
+      if (args.removeCredentials) sessions.delete(args.sourceId);
+      return changed(args.sourceId);
+    },
+    pin_streaming_source: (args: {
+      sourceId: string;
+      version: string | null;
+    }) => {
+      source(args.sourceId).pinned_version = args.version;
+      return changed(args.sourceId);
+    },
+    get_streaming_session: (args: { sourceId: string }) =>
+      session(args.sourceId),
+    open_streaming_sign_in: (args: { sourceId: string }) => {
+      const s = source(args.sourceId);
+      tracks(args.sourceId);
+      const challenge = `${args.sourceId}:auth:${challenges.size + 1}`;
+      challenges.set(challenge, {
+        sourceId: args.sourceId,
+        state: "pending",
+        polls: 0,
+      });
+      s.active_work.push({
+        id: challenges.size,
+        kind: "authentication",
+        cancelling: false,
+      });
+      s.running = true;
+      changed(args.sourceId);
+      return {
+        source_id: args.sourceId,
+        challenge,
+        expires_at: "2099-01-01T00:00:00Z",
+        poll_after_ms: 10,
+        presentation:
+          args.sourceId === "demo-web"
+            ? { kind: "web" }
+            : {
+                kind: "qr",
+                content: "https://example.invalid/demo-auth",
+                text: "Scan the UI-only demo code",
+              },
+      };
+    },
+    poll_streaming_sign_in: (args: { sourceId: string; challenge: string }) => {
+      source(args.sourceId);
+      const entry = challenges.get(args.challenge);
+      if (!entry || entry.sourceId !== args.sourceId)
+        throw {
+          code: "unknown_challenge",
+          message: "Challenge does not belong to this source",
+          retryable: false,
+        };
+      if (entry.state === "pending" && ++entry.polls >= 2) {
+        entry.state = "complete";
+        sessions.set(args.sourceId, true);
+        source(args.sourceId).active_work = [];
+        source(args.sourceId).running = false;
+        emitMockEvent("streaming-sign-in-complete", session(args.sourceId));
+        changed(args.sourceId);
+      }
+      return entry.state === "complete"
+        ? { state: "complete", session: session(args.sourceId) }
+        : { state: entry.state, poll_after_ms: 10 };
+    },
+    cancel_streaming_sign_in: (args: {
+      sourceId: string;
+      challenge: string;
+    }) => {
+      const entry = challenges.get(args.challenge);
+      if (!entry || entry.sourceId !== args.sourceId)
+        throw {
+          code: "unknown_challenge",
+          message: "Unknown challenge",
+          retryable: false,
+        };
+      entry.state = "cancelled";
+      source(args.sourceId).active_work = [];
+      source(args.sourceId).running = false;
+      changed(args.sourceId);
+    },
+    sign_out_streaming_source: (args: {
+      sourceId: string;
+      stopWork?: boolean;
+    }) => {
+      stopWork(args.sourceId, !!args.stopWork);
+      sessions.delete(args.sourceId);
+      return session(args.sourceId);
+    },
+    list_streaming_liked_tracks: (args: {
+      sourceId: string;
+      cursor?: string;
+    }) => {
+      if (
+        !source(args.sourceId).manifest?.capabilities.includes("liked_tracks")
+      )
+        throw {
+          code: "streaming_unsupported_operation",
+          message: "This source does not offer liked tracks",
+          retryable: false,
+        };
+      return page(args.sourceId, args.cursor);
+    },
+    get_streaming_tracks: (args: {
+      sourceId: string;
+      remoteTrackIds: string[];
+    }) =>
+      args.remoteTrackIds.flatMap((id) =>
+        tracks(args.sourceId).filter((track) => track.remote_track_id === id),
+      ),
+    list_streaming_playlists: (args: { sourceId: string; cursor?: string }) => {
+      tracks(args.sourceId);
+      if (args.cursor && args.cursor !== `${args.sourceId}:playlists`)
+        throw {
+          code: "streaming_invalid_cursor",
+          message: "Invalid playlist cursor",
+          retryable: false,
+        };
+      return {
+        items: [
+          {
+            source_id: args.sourceId,
+            remote_id: args.cursor ? "second" : "shared-playlist",
+            name: args.cursor ? "Second playlist" : "Shared playlist",
+            track_count: 3,
+            cover_url: null,
+          },
+        ],
+        next_cursor: args.cursor ? null : `${args.sourceId}:playlists`,
+      };
+    },
+    get_streaming_playlist: (args: {
+      sourceId: string;
+      remotePlaylistId: string;
+      cursor?: string;
+    }) => ({
+      source_id: args.sourceId,
+      remote_id: args.remotePlaylistId,
+      name: "Shared playlist",
+      ...page(args.sourceId, args.cursor),
+      cover_url: null,
+      description: "UI-only fixture",
+      track_count: 3,
+      creator: null,
+      updated_at_ms: null,
+    }),
+    search_streaming_source: (args: {
+      sourceId: string;
+      query: string;
+      cursor?: string;
+    }) => page(args.sourceId, args.cursor, args.query),
+    cancel_streaming_import: () => {
+      importCancelled = true;
+    },
+    get_streaming_import_status: () => clone(importJob),
+    start_streaming_import: async (args: {
+      sourceId: string;
+      remoteTrackIds: string[];
+      jobId: string;
+    }) => {
+      if (importSourceId)
+        throw {
+          code: "import_in_progress",
+          message: "An import is already running",
+          retryable: true,
+        };
+      const selected = args.remoteTrackIds.flatMap((id) =>
+        tracks(args.sourceId).filter((track) => track.remote_track_id === id),
+      );
+      importSourceId = args.sourceId;
+      importCancelled = false;
+      const job: StreamingImportJobSnapshot = {
+        source_id: args.sourceId,
+        job_id: args.jobId,
+        phase: "running",
+        completed: 0,
+        total: selected.length,
+        tracks: selected.map((track) => ({
+          remote_track_id: track.remote_track_id,
+          title: track.title,
+          artist: track.artist,
+          state: { kind: "queued" },
+        })),
+      };
+      importJob = job;
+      source(args.sourceId).active_work.push({
+        id: 2000,
+        kind: "import",
+        cancelling: false,
+      });
+      changed(args.sourceId);
+      await new Promise<void>((resolve) => setTimeout(resolve, 20));
+      for (const track of job.tracks) {
+        track.state = {
+          kind: "failed",
+          reason: importCancelled ? "cancelled" : "import_failed",
+        };
+        job.completed++;
+        emitMockEvent("streaming-import-progress", {
+          source_id: args.sourceId,
+          job_id: job.job_id,
+          ...track,
+          completed: job.completed,
+          total: job.total,
+        });
+      }
+      job.phase = "completed";
+      importSourceId = null;
+      source(args.sourceId).active_work = source(
+        args.sourceId,
+      ).active_work.filter((work) => work.kind !== "import");
+      changed(args.sourceId);
+      const progress: StreamingImportProgress = {
+        source_id: args.sourceId,
+        status: "completed",
+        imported_song_ids: [],
+        failed: selected.map((track) => ({
+          remote_track_id: track.remote_track_id,
+          title: track.title,
+          artist: track.artist,
+          reason: importCancelled ? "cancelled" : "import_failed",
+          refusal: null,
+        })),
+        playlist_id: null,
+        conflict: null,
+      };
+      emitMockEvent("streaming-import-complete", {
+        source_id: args.sourceId,
+        job_id: job.job_id,
+        progress,
+      });
+      return progress;
+    },
+    continue_streaming_import: () => {
+      throw {
+        code: "no_active_decision",
+        message: "No import decision is pending",
+        retryable: false,
+      };
+    },
+    resolve_video_source_url: (args: { url: string }) => {
+      if (String(args.url).includes("/player")) {
+        throw new Error("YouTube /player stream URLs are not used");
+      }
+      return [];
+    },
+    control_youtube_watch: (args: {
+      action?: { type?: string; url?: string };
+    }) => {
+      const url = args.action?.url;
+      if (url?.includes("/player")) {
+        throw new Error("YouTube /player stream URLs are not used");
+      }
+      return {
+        ended: false,
+        paused: args.action?.type !== "play",
+        current_time_ms: 0,
+        duration_ms: null,
+      };
+    },
+    get_reveal_targets: () => ({
+      song_file: { available: false, path: null },
+      stems: { available: false, path: null },
+    }),
+    reveal_in_folder: () => {},
+    set_online_source_enabled: (args: {
+      sourceId?: string;
+      enabled?: boolean;
+    }) => {
+      const sourceId = args.sourceId;
+      const enabled = !!args.enabled;
+      settingsSnapshot = {
+        ...settingsSnapshot,
+        youtube_source_enabled:
+          sourceId === "youtube"
+            ? enabled
+            : !!settingsSnapshot.youtube_source_enabled,
       };
       return settingsSnapshot;
     },

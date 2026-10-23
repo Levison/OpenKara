@@ -108,7 +108,9 @@
       "title": "Tingkatkan Semua Lagu ke 4-Stem",
       "message": "Ini akan memisahkan ulang semua lagu menggunakan mode 4-stem. Penggunaan ruang disk untuk stem akan kira-kira dua kali lipat.",
       "confirm": "Tingkatkan Semua"
-    }
+    },
+    "onlineSources": "SUMBER ONLINE",
+    "youtubeLink": "Tautan YouTube"
   },
   "toolbar": {
     "import": "Impor",
@@ -188,7 +190,19 @@
     },
     "modelPreparing": "Menyiapkan model pemisahan…",
     "cancelSeparation": "Batalkan pemisahan",
-    "usingCachedSeparation": "Menggunakan pemisahan dari cache"
+    "usingCachedSeparation": "Menggunakan pemisahan dari cache",
+    "confirmDeleteTitle_one": "Delete {{count}} Track",
+    "revealSongFile": "Tampilkan berkas lagu",
+    "revealStems": "Buka folder stem",
+    "decision": {
+      "title": "Keputusan pustaka",
+      "importConflict": "Daftar ini sudah ada di pustaka dengan berkas berbeda. Pertahankan lagu pustaka atau ganti.",
+      "keep": "Pertahankan lagu pustaka",
+      "replace": "Ganti lagu pustaka",
+      "applyToRemaining": "Terapkan ke konflik sisanya",
+      "librarySong": "Lagu pustaka",
+      "incoming": "Berkas masuk"
+    }
   },
   "player": {
     "previous": "Sebelumnya",
@@ -325,6 +339,55 @@
     "failedToLoad": "Gagal memuat properti"
   },
   "settings": {
+    "streaming": {
+      "title": "Streaming Sources",
+      "refresh": "Check for sources and updates",
+      "trustNotice": "Install reviewed source packages only. Their code runs on your computer and can access credentials you provide. A signature identifies the publisher; it is not a sandbox.",
+      "empty": "No sources are available. Check for sources to try again.",
+      "publisher": "Publisher / package",
+      "license": "License",
+      "installed": "Installed version",
+      "notInstalled": "Not installed",
+      "available": "Available version",
+      "runtime": "Runtime",
+      "runtimeReady": "Ready",
+      "runtimeMissing": "Download required",
+      "state": "Source state",
+      "authentication": "Account",
+      "signedOut": "Signed out",
+      "staged": "Version {{version}} waits for active work to finish.",
+      "activeWork": "Active work",
+      "install": "Install",
+      "update": "Update",
+      "disable": "Disable",
+      "enable": "Enable",
+      "pin": "Pin installed version",
+      "unpin": "Remove pin",
+      "uninstall": "Uninstall",
+      "confirmUninstall": "Uninstall source",
+      "confirmDisable": "Disable source",
+      "libraryRetained": "Imported songs and playlists stay in your library.",
+      "stopWorkBody": "This action must stop the following work",
+      "stopWork": "Stop active source work",
+      "credentialsChoice": "Choose what to do with saved credentials",
+      "retainCredentials": "Keep saved credentials",
+      "removeCredentials": "Remove saved credentials",
+      "states": {
+        "not_installed": "Not installed",
+        "installing": "Installing",
+        "ready": "Ready",
+        "disabled": "Disabled",
+        "update_required": "Update required",
+        "unavailable": "Unavailable",
+        "waiting_for_idle": "Waiting for active work",
+        "cancelling": "Cancelling"
+      },
+      "work": {
+        "authentication": "Sign-in",
+        "preview": "Online preview",
+        "import": "Streaming import"
+      }
+    },
     "title": "Preferensi",
     "library": {
       "label": "Pustaka Karaoke",
@@ -388,7 +451,9 @@
       "existingRemoteLibraries": "Repositori Jarak Jauh yang Ada",
       "connectRemoteGoogleDrive": "Hubungkan ke Google Drive",
       "connectRemoteDropbox": "Hubungkan ke Dropbox",
-      "connectRemoteWebdav": "Hubungkan"
+      "connectRemoteWebdav": "Hubungkan",
+      "deleteRemoteRepositoryWarning": "Tindakan ini menghapus repositori jarak jauh secara permanen dari {{provider}} di {{path}}. Untuk hanya menghapus sambungan perangkat ini, pilih {{disconnectAction}}.",
+      "remoteDeletionSkipped": "Sambungan lokal telah dihapus, tetapi repositori jarak jauh tetap ada di {{provider}} karena OpenKara tidak dapat mengaksesnya dengan sambungan atau kredensial saat ini. Jika perlu, sambungkan kembali lalu hapus dari {{provider}}."
     },
     "stemMode": {
       "label": "Mode Pemisahan Stem",
@@ -675,6 +740,12 @@
     "lyricsBlurInactive": {
       "enable": "Buramkan lirik yang tidak sedang diputar",
       "description": "Melembutkan baris lalu dan berikutnya. Biarkan mati agar bisa membaca ke depan."
+    },
+    "onlineSources": {
+      "label": "Sumber daring",
+      "description": "Nyalakan sumber musik atau video. Keduanya tetap mati sampai Anda memilihnya.",
+      "youtube": "YouTube",
+      "youtubeDescription": "Tempel tautan video atau daftar putar publik ke antrean. OpenKara tidak mengunduh audio YouTube."
     }
   },
   "bootstrap": {
@@ -718,6 +789,13 @@
     "confirmRemoveSingerMessage": "Penyanyi ini ditetapkan ke lagu di antrean. Menghapusnya juga akan menghapus lagu-lagu tersebut dari antrean."
   },
   "errors": {
+    "streaming_source_unavailable": "Source unavailable",
+    "streaming_unsupported_operation": "Operation not supported",
+    "streaming_source_not_found": "Source not found",
+    "streaming_challenge_expired": "Sign-in challenge expired",
+    "streaming_invalid_cursor": "This page expired. Load it again.",
+    "streaming_work_active": "Source work is active",
+    "streaming_cancelled": "Source operation cancelled",
     "database_unavailable": "Kesalahan Basis Data",
     "media_read_failed": "Impor Gagal",
     "song_not_found": "Lagu Tidak Ditemukan",
@@ -736,7 +814,11 @@
     "separation_failed": "Pemisahan Gagal",
     "internal": "Kesalahan Internal",
     "remote_repository_unavailable": "Repositori Jarak Jauh Tidak Tersedia",
-    "somethingWentWrong": "Terjadi kesalahan"
+    "somethingWentWrong": "Terjadi kesalahan",
+    "online_source_disabled": "Sumber daring ini nonaktif.",
+    "streaming_auth_failed": "Gagal masuk",
+    "streaming_session_expired": "Sesi sumber streaming berakhir. Masuk lagi.",
+    "video_source_unavailable": "Video ini tidak dapat diputar sebagai tamu."
   },
   "updater": {
     "available": "Versi {{version}} tersedia",
@@ -746,5 +828,100 @@
     "restartToApply": "Pembaruan siap — mulai ulang untuk menerapkan",
     "restart": "Mulai ulang",
     "failed": "Pembaruan gagal — unduh rilis terbaru secara manual"
+  },
+  "catalog": {
+    "streaming": {
+      "title": "Streaming Source",
+      "signOut": "Keluar",
+      "sessionExpired": "Sesi berakhir. Masuk lagi.",
+      "liked": "Lagu yang disukai",
+      "playlists": "Playlist",
+      "searchPlaceholder": "Search source songs",
+      "importTrack": "Impor",
+      "importPlaylist": "Impor playlist",
+      "connect": "Sign in",
+      "clearSearch": "Hapus pencarian",
+      "tabsLabel": "Source library sections",
+      "resultsTab": "Hasil untuk “{{query}}”",
+      "accountMenu": "Menu akun",
+      "importTrackLabel": "Impor “{{title}}”",
+      "statusNoRights": "Tanpa hak putar",
+      "statusNoRightsHint": "Your account cannot play this song, so it cannot be imported.",
+      "statusTrial": "Hanya klip uji coba",
+      "statusTrialHint": "Only a trial clip is available, so this song cannot be imported.",
+      "statusImporting": "Mengimpor…",
+      "statusImported": "Ada di pustaka",
+      "statusFailed": "Impor gagal",
+      "likedEmpty": "Tidak ada lagu yang disukai",
+      "playlistsEmpty": "Tidak ada playlist",
+      "resultsEmpty": "Tidak ada hasil untuk “{{query}}”",
+      "playlistEmpty": "Playlist ini tidak berisi lagu",
+      "loadFailed": "Daftar ini tidak dapat dimuat.",
+      "importDone": "{{imported}} diimpor · {{skipped}} dilewati",
+      "viewSkipped": "Lihat yang dilewati",
+      "hideSkipped": "Sembunyikan yang dilewati",
+      "skipReason": {
+        "refusal": "Tidak dapat diimpor",
+        "cancelled": "Dibatalkan",
+        "import_failed": "Impor gagal"
+      },
+      "importProgressLabel": "Impor sedang berlangsung",
+      "connectTitle": "Connect your account",
+      "connectBody": "Masuk untuk menjelajahi lagu yang Anda sukai dan playlist, lalu impor lagu yang bisa diputar. File yang diimpor menjadi milik pustaka Anda.",
+      "connectHintWindow": "Complete sign-in in the source window.",
+      "connectHintRights": "Lagu tanpa hak putar, atau hanya dengan klip uji coba, tidak dapat diimpor.",
+      "signInFailed": "Gagal masuk: {{message}}",
+      "songCount_other": "{{count}} lagu",
+      "statusQueued": "Antre",
+      "statusDownloading": "Mengunduh {{percent}}%",
+      "statusDownloadingUnknown": "Mengunduh…",
+      "statusCancelled": "Dibatalkan",
+      "importSelected": "Impor {{selected}} terpilih",
+      "selectAll": "Pilih semua lagu",
+      "selectRow": "Pilih {{title}}",
+      "cancelImport": "Batal",
+      "cancelling": "Membatalkan…",
+      "skippedSoFar": "{{skipped}} dilewati",
+      "back": "Kembali",
+      "byCreator": "oleh {{creator}}",
+      "updatedOn": "diperbarui {{date}}",
+      "importableCount": "{{importable}} dapat diimpor",
+      "select": "Pilih",
+      "selectDone": "Selesai",
+      "hideUnavailable": "Sembunyikan yang tidak tersedia",
+      "unavailableHidden": "{{hidden}} tidak tersedia disembunyikan",
+      "trackListLabel": "Lagu",
+      "retryImportLabel": "Coba impor lagi “{{title}}”",
+      "importingProgress": "Mengimpor {{completed}} dari {{total}}",
+      "loadingMore": "Memuat lebih banyak lagu…",
+      "refusalReason": {
+        "trial_clip": "Only a trial clip is available",
+        "no_play_rights": "Tidak ada hak putar",
+        "empty_url": "Audio tidak tersedia",
+        "unavailable": "This source cannot provide this song"
+      },
+      "cantPlayTitle": "Tidak dapat memutar “{{title}}”",
+      "importToSing": "Impor untuk bernyanyi",
+      "previewHint": "Pratinjau streaming. Impor lagu untuk bernyanyi, memisahkan vokal, atau menambah lirik.",
+      "search": "Search",
+      "results": "Search results",
+      "loadMore": "Load more",
+      "importLoaded": "Import loaded songs",
+      "scanCode": "Scan to sign in",
+      "unavailable": "Source unavailable. Open Settings to manage it.",
+      "noOperations": "This source has no supported browsing operations.",
+      "signedIn": "Signed in"
+    }
+  },
+  "youtube": {
+    "pasteLink": "Tempel tautan YouTube",
+    "pastePlaceholder": "https://www.youtube.com/watch?v=…",
+    "addToQueue": "Tambah ke antrean",
+    "invalidUrl": "Itu bukan tautan tonton atau daftar putar YouTube yang publik.",
+    "ageRestricted": "Video ini dibatasi usia.",
+    "private": "Video ini pribadi.",
+    "unlisted": "Video ini tidak terdaftar.",
+    "popoverTitle": "Tambahkan tautan YouTube",
+    "popoverHint": "Video atau playlist publik. Diputar dari YouTube — OpenKara tidak mengunduh audionya."
   }
 }

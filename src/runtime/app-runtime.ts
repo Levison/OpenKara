@@ -23,6 +23,7 @@ import {
 } from "@/runtime/airplay-runtime";
 import { useLocalAudienceRomanizeRuntime } from "@/runtime/local-audience-romanize-runtime";
 import { useAppMenuRuntime } from "./menu-runtime";
+import { useStreamingRuntime } from "./streaming-runtime";
 import { loadStartupSettings } from "./settings-runtime";
 
 type AnimationFrameScheduler = (callback: FrameRequestCallback) => number;
@@ -137,4 +138,5 @@ export function useAppRuntime(enabled: boolean) {
   useKeyboardShortcuts(enabled);
   useFileDrop(enabled);
   useAppMenuRuntime(enabled);
+  useStreamingRuntime(enabled);
 }

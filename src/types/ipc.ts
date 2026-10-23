@@ -13,6 +13,17 @@ export type ErrorCode =
   | "execution_provider_unavailable"
   | "runtime_post_download_timeout"
   | "separation_failed"
+  | "online_source_disabled"
+  | "streaming_auth_failed"
+  | "streaming_session_expired"
+  | "streaming_source_unavailable"
+  | "streaming_unsupported_operation"
+  | "streaming_source_not_found"
+  | "streaming_challenge_expired"
+  | "streaming_invalid_cursor"
+  | "streaming_work_active"
+  | "streaming_cancelled"
+  | "video_source_unavailable"
   | "internal";
 
 export type FallbackAction =
@@ -36,6 +47,313 @@ export type CoverArtBytes = number[] | Uint8Array | ArrayBuffer | null;
 export type CoverArtSize = "thumb" | "preview" | "original";
 
 export type RemoteLibraryProvider = "google_drive" | "dropbox" | "webdav";
+
+export type OnlineSourceId = string;
+
+export type OnlineSourceKind = "video" | "streaming";
+
+export interface OnlineSourceCapabilities {
+  sign_in: boolean;
+  browse: boolean;
+  import: boolean;
+  resolve_video: boolean;
+}
+
+export interface OnlineSourceSnapshot {
+  id: OnlineSourceId;
+  kind: OnlineSourceKind;
+  enabled: boolean;
+  capabilities: OnlineSourceCapabilities;
+}
+
+export interface StreamingSessionSnapshot {
+  source_id: OnlineSourceId;
+  signed_in: boolean;
+  display_name: string | null;
+  expired: boolean;
+}
+
+export interface HostError {
+  code: string;
+  message: string;
+  retryable: boolean;
+}
+
+export type SourceState =
+  | "not_installed"
+  | "installing"
+  | "ready"
+  | "disabled"
+  | "update_required"
+  | "unavailable"
+  | "waiting_for_idle"
+  | "cancelling";
+export interface InstallProgress {
+  phase: string;
+  completed: number;
+  total: number | null;
+}
+export interface ActiveWork {
+  id: number;
+  kind: "authentication" | "preview" | "import";
+  cancelling: boolean;
+}
+export interface SourceManifest {
+  manifest_version: number;
+  source_id: string;
+  package_id: string;
+  publisher: string;
+  version: string;
+  minimum_host_version: string;
+  protocol: { majors: number[]; minor: number };
+  runtime: { kind: string; major: number };
+  entry: string;
+  name: string;
+  description: string;
+  license: string;
+  capabilities: string[];
+  authentication: unknown;
+  requires_authentication: string[];
+  resource_origins: string[];
+  media_origins: string[];
+}
+export interface SourceSnapshot {
+  source_id: string;
+  owner_binding: string;
+  name: string;
+  description: string;
+  license: string;
+  installed_version: string | null;
+  available_version: string | null;
+  staged_version: string | null;
+  pinned_version: string | null;
+  enabled: boolean;
+  runtime_ready: boolean;
+  running: boolean;
+  state: SourceState;
+  progress: InstallProgress | null;
+  last_error: HostError | null;
+  active_work: ActiveWork[];
+  manifest: SourceManifest | null;
+}
+export interface AuthChallenge {
+  source_id: string;
+  challenge: string;
+  expires_at: string;
+  poll_after_ms: number | null;
+  presentation:
+    | { kind: "web" }
+    | { kind: "qr"; content: string; text: string }
+    | { kind: "text"; text: string };
+}
+export interface AuthPollResult {
+  state: "pending" | "complete" | "expired" | "cancelled";
+  poll_after_ms?: number;
+  session?: StreamingSessionSnapshot;
+}
+
+export type YoutubeWatchAction =
+  | { type: "play" }
+  | { type: "pause" }
+  | { type: "seek"; ms: number }
+  | { type: "set_volume"; level: number }
+  | { type: "query" }
+  | { type: "navigate"; url: string };
+
+export interface YoutubeWatchMediaState {
+  ended: boolean;
+  paused: boolean;
+  current_time_ms: number;
+  duration_ms: number | null;
+}
+
+export type ImportRefusalReason =
+  | "no_play_rights"
+  | "trial_clip"
+  | "empty_url"
+  | "unavailable";
+
+export interface ImportRefusal {
+  reason: ImportRefusalReason;
+  title: string;
+  artist: string;
+}
+
+export interface StreamingTrack {
+  source_id: OnlineSourceId;
+  remote_track_id: string;
+  title: string;
+  artist: string;
+  album: string | null;
+  duration_ms: number | null;
+  refusal: ImportRefusal | null;
+  library_song_id: string | null;
+  /** Host-managed artwork resource URL. */
+  cover_url: string | null;
+}
+
+export interface StreamingPlaylistSummary {
+  source_id: OnlineSourceId;
+  remote_id: string;
+  name: string;
+  track_count: number | null;
+  cover_url: string | null;
+}
+
+export interface StreamingPlaylistDetail {
+  source_id: OnlineSourceId;
+  remote_id: string;
+  name: string;
+  tracks: StreamingTrack[];
+  cover_url: string | null;
+  description: string | null;
+  track_count: number | null;
+  creator: string | null;
+  updated_at_ms: number | null;
+  next_cursor: string | null;
+}
+
+export interface StreamingTrackListing {
+  tracks: StreamingTrack[];
+  next_cursor: string | null;
+}
+
+export interface StreamingPlaylistListing {
+  items: StreamingPlaylistSummary[];
+  next_cursor: string | null;
+}
+
+export interface LibraryDecisionMeta {
+  title: string | null;
+  artist: string | null;
+  album: string | null;
+  format: string;
+  bit_rate_bps: number | null;
+  duration_ms: number | null;
+  file_size_bytes: number;
+}
+
+export interface ImportConflictPrompt {
+  source_id: OnlineSourceId;
+  remote_track_id: string;
+  library: LibraryDecisionMeta;
+  incoming: LibraryDecisionMeta;
+}
+
+export type LibraryDecisionAction =
+  | "keep"
+  | "replace"
+  | "apply_keep"
+  | "apply_replace"
+  | "cancel";
+
+export type StreamingImportFailureReason =
+  | "refusal"
+  | "cancelled"
+  | "import_failed";
+
+export interface StreamingImportFailure {
+  remote_track_id: string;
+  title: string;
+  artist: string;
+  reason: StreamingImportFailureReason;
+  refusal: ImportRefusal | null;
+}
+
+export type StreamingImportStatus = "awaiting_decision" | "completed";
+
+export interface StreamingImportProgress {
+  source_id: OnlineSourceId;
+  status: StreamingImportStatus;
+  imported_song_ids: string[];
+  failed: StreamingImportFailure[];
+  playlist_id: string | null;
+  conflict: ImportConflictPrompt | null;
+}
+
+export type StreamingImportTrackState =
+  | { kind: "queued" }
+  | { kind: "downloading"; percent?: number }
+  | { kind: "importing" }
+  | { kind: "imported"; song_id: string }
+  | { kind: "skipped"; refusal: ImportRefusal }
+  | { kind: "failed"; reason: StreamingImportFailureReason };
+
+export interface StreamingImportCompleteEvent {
+  source_id: OnlineSourceId;
+  job_id: string;
+  progress: StreamingImportProgress;
+}
+
+export interface StreamingImportEvent {
+  source_id: OnlineSourceId;
+  job_id: string;
+  remote_track_id: string;
+  title: string;
+  artist: string;
+  state: StreamingImportTrackState;
+  completed: number;
+  total: number;
+}
+
+export type StreamingImportJobPhase =
+  | "running"
+  | "awaiting_decision"
+  | "completed";
+
+export interface StreamingImportTrackSnapshot {
+  remote_track_id: string;
+  title: string;
+  artist: string;
+  state: StreamingImportTrackState;
+}
+
+export interface StreamingImportJobSnapshot {
+  source_id: OnlineSourceId;
+  job_id: string;
+  phase: StreamingImportJobPhase;
+  completed: number;
+  total: number;
+  tracks: StreamingImportTrackSnapshot[];
+}
+
+/** Display data for a source-bound streaming preview. */
+export interface PreviewQueueItem {
+  id: string;
+  source_id: string;
+  remote_track_id: string;
+  title: string;
+  artist: string;
+  album: string | null;
+  duration_ms: number | null;
+  cover_url: string | null;
+}
+
+export interface VideoQueueItem {
+  id: string;
+  title: string;
+  channel: string;
+  duration_ms: number | null;
+  thumbnail_url: string | null;
+  watch_url: string;
+}
+
+export type VideoUnavailableReason =
+  | "invalid_url"
+  | "age_restricted"
+  | "private"
+  | "unlisted"
+  | "unavailable";
+
+export interface RevealTarget {
+  available: boolean;
+  path: string | null;
+}
+
+export interface RevealTargets {
+  song_file: RevealTarget;
+  stems: RevealTarget;
+}
 
 export interface WebDavRemoteAuthPayload {
   type: "webdav";
@@ -114,6 +432,11 @@ export type RegisteredLibrary =
 export interface LibraryRegistrySnapshot {
   active_library_id: string | null;
   libraries: RegisteredLibrary[];
+}
+
+export interface DeleteLibraryResult {
+  registry: LibraryRegistrySnapshot;
+  remote_repository_deleted: boolean | null;
 }
 
 export interface Song {
@@ -232,6 +555,7 @@ export interface AppSettings {
   library_sort_mode: LibrarySortMode;
   theme_preference: ThemePreference;
   update_policy: UpdatePolicy;
+  youtube_source_enabled: boolean;
 }
 
 export interface DebugInfo {

@@ -100,6 +100,7 @@ const CATEGORY_PATTERNS = {
   ],
 
   rust: [
+    "src-tauri/build.rs",
     "src-tauri/src/**",
     "src-tauri/tests/**",
     // Source-tree smoke binaries compile against the production crate and
@@ -180,6 +181,8 @@ const CATEGORY_PATTERNS = {
 
   packaging_inputs: [
     "packaging/**",
+    "scripts/ci/build-backend-without-node.sh",
+    "src-tauri/build.rs",
     "src-tauri/tauri.conf.json",
     "src-tauri/tauri.linux.conf.json",
     "src-tauri/tauri.macos.conf.json",

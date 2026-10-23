@@ -108,7 +108,9 @@
       "title": "Повысить все песни до 4 дорожек",
       "message": "Все песни будут разделены заново в режиме 4 дорожек. Занимаемое дорожками место на диске примерно удвоится.",
       "confirm": "Повысить все"
-    }
+    },
+    "onlineSources": "ОНЛАЙН-ИСТОЧНИКИ",
+    "youtubeLink": "Ссылка YouTube"
   },
   "toolbar": {
     "import": "Импорт",
@@ -191,7 +193,18 @@
     },
     "modelPreparing": "Подготовка модели разделения…",
     "cancelSeparation": "Отменить разделение",
-    "usingCachedSeparation": "Используется кэшированное разделение"
+    "usingCachedSeparation": "Используется кэшированное разделение",
+    "revealSongFile": "Показать файл песни",
+    "revealStems": "Открыть папку стемов",
+    "decision": {
+      "title": "Решение библиотеки",
+      "importConflict": "Эта композиция уже есть в библиотеке, но файл другой. Оставьте песню библиотеки или замените её.",
+      "keep": "Оставить песню библиотеки",
+      "replace": "Заменить песню библиотеки",
+      "applyToRemaining": "Применить к остальным конфликтам",
+      "librarySong": "Песня библиотеки",
+      "incoming": "Входящий файл"
+    }
   },
   "player": {
     "previous": "Предыдущий",
@@ -328,6 +341,55 @@
     "failedToLoad": "Не удалось загрузить свойства"
   },
   "settings": {
+    "streaming": {
+      "title": "Streaming Sources",
+      "refresh": "Check for sources and updates",
+      "trustNotice": "Install reviewed source packages only. Their code runs on your computer and can access credentials you provide. A signature identifies the publisher; it is not a sandbox.",
+      "empty": "No sources are available. Check for sources to try again.",
+      "publisher": "Publisher / package",
+      "license": "License",
+      "installed": "Installed version",
+      "notInstalled": "Not installed",
+      "available": "Available version",
+      "runtime": "Runtime",
+      "runtimeReady": "Ready",
+      "runtimeMissing": "Download required",
+      "state": "Source state",
+      "authentication": "Account",
+      "signedOut": "Signed out",
+      "staged": "Version {{version}} waits for active work to finish.",
+      "activeWork": "Active work",
+      "install": "Install",
+      "update": "Update",
+      "disable": "Disable",
+      "enable": "Enable",
+      "pin": "Pin installed version",
+      "unpin": "Remove pin",
+      "uninstall": "Uninstall",
+      "confirmUninstall": "Uninstall source",
+      "confirmDisable": "Disable source",
+      "libraryRetained": "Imported songs and playlists stay in your library.",
+      "stopWorkBody": "This action must stop the following work",
+      "stopWork": "Stop active source work",
+      "credentialsChoice": "Choose what to do with saved credentials",
+      "retainCredentials": "Keep saved credentials",
+      "removeCredentials": "Remove saved credentials",
+      "states": {
+        "not_installed": "Not installed",
+        "installing": "Installing",
+        "ready": "Ready",
+        "disabled": "Disabled",
+        "update_required": "Update required",
+        "unavailable": "Unavailable",
+        "waiting_for_idle": "Waiting for active work",
+        "cancelling": "Cancelling"
+      },
+      "work": {
+        "authentication": "Sign-in",
+        "preview": "Online preview",
+        "import": "Streaming import"
+      }
+    },
     "title": "Настройки",
     "library": {
       "label": "Караоке-библиотека",
@@ -391,7 +453,9 @@
       "existingRemoteLibraries": "Существующие удалённые репозитории",
       "connectRemoteGoogleDrive": "Подключиться к Google Drive",
       "connectRemoteDropbox": "Подключиться к Dropbox",
-      "connectRemoteWebdav": "Подключиться"
+      "connectRemoteWebdav": "Подключиться",
+      "deleteRemoteRepositoryWarning": "Это навсегда удалит удалённый репозиторий из {{provider}} по адресу {{path}}. Чтобы удалить только подключение этого устройства, выберите {{disconnectAction}}.",
+      "remoteDeletionSkipped": "Локальное подключение удалено, но удалённый репозиторий остался в {{provider}}, так как OpenKara не смогла получить к нему доступ с текущим подключением или учётными данными. При необходимости подключитесь снова и удалите его из {{provider}}."
     },
     "stemMode": {
       "label": "Режим разделения на дорожки",
@@ -678,6 +742,12 @@
     "lyricsBlurInactive": {
       "enable": "Размывать строки, которые не звучат",
       "description": "Смягчает прошедшие и следующие строки. Оставьте выключенным, чтобы читать заранее."
+    },
+    "onlineSources": {
+      "label": "Онлайн-источники",
+      "description": "Включите музыкальный или видеоисточник. Оба остаются выключенными, пока вы их не выберете.",
+      "youtube": "YouTube",
+      "youtubeDescription": "Вставьте публичную ссылку на видео или плейлист в очередь. OpenKara не скачивает звук с YouTube."
     }
   },
   "bootstrap": {
@@ -721,6 +791,13 @@
     "confirmRemoveSingerMessage": "Этот певец назначен на песни в очереди. При его удалении эти песни также будут убраны из очереди."
   },
   "errors": {
+    "streaming_source_unavailable": "Source unavailable",
+    "streaming_unsupported_operation": "Operation not supported",
+    "streaming_source_not_found": "Source not found",
+    "streaming_challenge_expired": "Sign-in challenge expired",
+    "streaming_invalid_cursor": "This page expired. Load it again.",
+    "streaming_work_active": "Source work is active",
+    "streaming_cancelled": "Source operation cancelled",
     "database_unavailable": "Ошибка базы данных",
     "media_read_failed": "Ошибка импорта",
     "song_not_found": "Песня не найдена",
@@ -739,7 +816,11 @@
     "separation_failed": "Ошибка разделения",
     "internal": "Внутренняя ошибка",
     "remote_repository_unavailable": "Удалённый репозиторий недоступен",
-    "somethingWentWrong": "Что-то пошло не так"
+    "somethingWentWrong": "Что-то пошло не так",
+    "online_source_disabled": "Этот онлайн-источник выключен.",
+    "streaming_auth_failed": "Ошибка входа",
+    "streaming_session_expired": "Сеанс источника стриминга истёк. Войдите снова.",
+    "video_source_unavailable": "Это видео нельзя воспроизвести как гость."
   },
   "updater": {
     "available": "Доступна версия {{version}}",
@@ -749,5 +830,103 @@
     "restartToApply": "Обновление готово — перезапустите для применения",
     "restart": "Перезапустить",
     "failed": "Не удалось обновить — загрузите последний выпуск вручную"
+  },
+  "catalog": {
+    "streaming": {
+      "title": "Streaming Source",
+      "signOut": "Выйти",
+      "sessionExpired": "Сеанс истёк. Войдите снова.",
+      "liked": "Понравившиеся треки",
+      "playlists": "Плейлисты",
+      "searchPlaceholder": "Search source songs",
+      "importTrack": "Импорт",
+      "importPlaylist": "Импортировать плейлист",
+      "connect": "Sign in",
+      "clearSearch": "Очистить поиск",
+      "tabsLabel": "Source library sections",
+      "resultsTab": "Результаты по запросу «{{query}}»",
+      "accountMenu": "Меню аккаунта",
+      "importTrackLabel": "Импортировать «{{title}}»",
+      "statusNoRights": "Нет прав на воспроизведение",
+      "statusNoRightsHint": "Your account cannot play this song, so it cannot be imported.",
+      "statusTrial": "Только пробный фрагмент",
+      "statusTrialHint": "Only a trial clip is available, so this song cannot be imported.",
+      "statusImporting": "Импорт…",
+      "statusImported": "В библиотеке",
+      "statusFailed": "Не удалось импортировать",
+      "likedEmpty": "Нет понравившихся треков",
+      "playlistsEmpty": "Нет плейлистов",
+      "resultsEmpty": "Нет результатов по запросу «{{query}}»",
+      "playlistEmpty": "В этом плейлисте нет треков",
+      "loadFailed": "Не удалось загрузить этот список.",
+      "importDone": "Импортировано: {{imported}} · пропущено: {{skipped}}",
+      "viewSkipped": "Показать пропущенные",
+      "hideSkipped": "Скрыть пропущенные",
+      "skipReason": {
+        "refusal": "Нельзя импортировать",
+        "cancelled": "Отменено",
+        "import_failed": "Не удалось импортировать"
+      },
+      "importProgressLabel": "Идёт импорт",
+      "connectTitle": "Connect your account",
+      "connectBody": "Войдите, чтобы просматривать понравившиеся треки и плейлисты и импортировать те, что можно воспроизвести. Импортированные файлы принадлежат вашей библиотеке.",
+      "connectHintWindow": "Complete sign-in in the source window.",
+      "connectHintRights": "Треки без прав на воспроизведение или только с пробным фрагментом импортировать нельзя.",
+      "signInFailed": "Не удалось войти: {{message}}",
+      "songCount_one": "{{count}} трек",
+      "songCount_few": "{{count}} трека",
+      "songCount_many": "{{count}} треков",
+      "songCount_other": "{{count}} трека",
+      "statusQueued": "В очереди",
+      "statusDownloading": "Загрузка {{percent}}%",
+      "statusDownloadingUnknown": "Загрузка…",
+      "statusCancelled": "Отменено",
+      "importSelected": "Импортировать выбранные ({{selected}})",
+      "selectAll": "Выбрать все треки",
+      "selectRow": "Выбрать: {{title}}",
+      "cancelImport": "Отмена",
+      "cancelling": "Отмена…",
+      "skippedSoFar": "Пропущено: {{skipped}}",
+      "back": "Назад",
+      "byCreator": "автор: {{creator}}",
+      "updatedOn": "обновлён {{date}}",
+      "importableCount": "можно импортировать: {{importable}}",
+      "select": "Выбрать",
+      "selectDone": "Готово",
+      "hideUnavailable": "Скрыть недоступные",
+      "unavailableHidden": "Скрыто недоступных: {{hidden}}",
+      "trackListLabel": "Треки",
+      "retryImportLabel": "Повторить импорт «{{title}}»",
+      "importingProgress": "Импорт {{completed}} из {{total}}",
+      "loadingMore": "Загрузка других треков…",
+      "refusalReason": {
+        "trial_clip": "Only a trial clip is available",
+        "no_play_rights": "Нет прав на воспроизведение",
+        "empty_url": "Аудио недоступно",
+        "unavailable": "This source cannot provide this song"
+      },
+      "cantPlayTitle": "Не удаётся воспроизвести «{{title}}»",
+      "importToSing": "Импортировать, чтобы петь",
+      "previewHint": "Потоковое превью. Импортируйте песню, чтобы петь, разделить вокал или добавить текст.",
+      "search": "Search",
+      "results": "Search results",
+      "loadMore": "Load more",
+      "importLoaded": "Import loaded songs",
+      "scanCode": "Scan to sign in",
+      "unavailable": "Source unavailable. Open Settings to manage it.",
+      "noOperations": "This source has no supported browsing operations.",
+      "signedIn": "Signed in"
+    }
+  },
+  "youtube": {
+    "pasteLink": "Вставить ссылку YouTube",
+    "pastePlaceholder": "https://www.youtube.com/watch?v=…",
+    "addToQueue": "Добавить в очередь",
+    "invalidUrl": "Это не публичная ссылка на просмотр или плейлист YouTube.",
+    "ageRestricted": "Это видео имеет возрастное ограничение.",
+    "private": "Это видео закрытое.",
+    "unlisted": "Это видео не в списке.",
+    "popoverTitle": "Добавить ссылку YouTube",
+    "popoverHint": "Публичное видео или плейлист. Воспроизводится с YouTube — OpenKara не скачивает аудио."
   }
 }

@@ -2142,6 +2142,13 @@
   },
   {
     "type": "file",
+    "url": "https://registry.npmjs.org/qrcode.react/-/qrcode.react-4.2.0.tgz",
+    "sha512": "42982a5a2f2b0fd0ec4bd10fdf3ec14fee6563948586ca868e9816e4363f8b798ae0cf434c1373dc4acc8bc0566047c8dcbd1df0621b1a671d1404b5b884468c",
+    "dest-filename": "qrcode.react-4.2.0.tgz",
+    "dest": "flatpak-node/pnpm-tarballs"
+  },
+  {
+    "type": "file",
     "url": "https://registry.npmjs.org/react-dom/-/react-dom-19.3.1.tgz",
     "sha512": "6346c0473e77961102d4d302012b34fe3f9f681ff3aaddd1f21a6f8357bcfbad59549e142f451d0b87016d77d931c22e86b7e07882d32def9978109abd03ed29",
     "dest-filename": "react-dom-19.3.1.tgz",

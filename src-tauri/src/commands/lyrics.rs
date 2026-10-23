@@ -19,7 +19,6 @@ use serde::Serialize;
 use std::path::Path;
 use tauri::{AppHandle, State};
 
-#[cfg(test)]
 use crate::lyrics::fetch::LyricsFetchResult;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -41,11 +40,67 @@ pub async fn fetch_lyrics(
 ) -> CommandResult<LyricsPayload> {
     let state = state.inner().clone();
     let app_handle = app_handle.clone();
+    if let Some((source_id, remote_track_id)) =
+        crate::catalog::streaming_preview_reference(&song_id)
+    {
+        return tauri::async_runtime::spawn_blocking(move || {
+            fetch_preview_lyrics(&state, &app_handle, song_id, &source_id, &remote_track_id)
+        })
+        .await
+        .map_err(|error| internal_error(format!("fetch_lyrics task failed: {error}")));
+    }
     tauri::async_runtime::spawn_blocking(move || {
         fetch_lyrics_on_thread(&state, &app_handle, &song_id)
     })
     .await
     .map_err(|error| internal_error(format!("fetch_lyrics task failed: {error}")))?
+}
+
+/// Preview lyrics use source-bound metadata without a library row or persistence.
+fn fetch_preview_lyrics(
+    state: &AppState,
+    app_handle: &AppHandle,
+    song_id: String,
+    source_id: &str,
+    remote_track_id: &str,
+) -> LyricsPayload {
+    use tauri::Manager;
+    let available = app_handle
+        .try_state::<crate::source_host::SourceHost>()
+        .and_then(|host| host.snapshot(source_id).ok())
+        .is_some_and(|source| {
+            source.installed_version.is_some() && source.enabled && source.runtime_ready
+        });
+    if !available {
+        return empty_lyrics_payload(song_id);
+    }
+    let track = app_handle
+        .try_state::<std::sync::Arc<crate::catalog::TrackMetadataCache>>()
+        .and_then(|cache| cache.get(source_id, remote_track_id));
+    let Some(track) = track else {
+        return empty_lyrics_payload(song_id);
+    };
+    let query = lyrics::lrclib::LyricsLookupQuery {
+        track_name: track.title,
+        artist_name: track.artist,
+        album_name: track.album,
+        duration_seconds: track
+            .duration_ms
+            .filter(|ms| *ms >= 1_000)
+            .map(|ms| ms / 1_000),
+    };
+    let acquisition = LyricsAcquisition::new(
+        &state.amll_client,
+        &state.lrclib_client,
+        &state.lrcapi_client,
+    );
+    match acquisition.fetch_for_query(&query) {
+        lyrics::fetch::OnlineLyricsResult::Found(found) => {
+            payload_from_fetched(song_id.clone(), &found)
+                .unwrap_or_else(|_| empty_lyrics_payload(song_id))
+        }
+        _ => empty_lyrics_payload(song_id),
+    }
 }
 
 fn fetch_lyrics_on_thread(
@@ -174,7 +229,6 @@ fn payload_from_cached_entry(
     })
 }
 
-#[cfg(test)]
 fn payload_from_fetched(
     song_id: String,
     fetched: &LyricsFetchResult,
@@ -509,6 +563,11 @@ pub async fn fetch_lyrics_online(
     song_id: String,
     intent: LyricsOnlineFetchIntent,
 ) -> CommandResult<LyricsPayload> {
+    // A streamed preview already got the full provider chain from
+    // `fetch_lyrics`; there is no stored row to upgrade.
+    if crate::catalog::streaming_preview_reference(&song_id).is_some() {
+        return Ok(empty_lyrics_payload(song_id));
+    }
     let state = state.inner().clone();
     let app_handle = app_handle.clone();
     tauri::async_runtime::spawn_blocking(move || {

@@ -27,6 +27,7 @@ import {
   type ReactNode,
 } from "react";
 import { Tooltip } from "@/components/Overlay/Tooltip";
+import { useCatalogStore } from "@/stores/catalog-store";
 import { useLibraryStore } from "@/stores/library-store";
 import { useQueueStore } from "@/stores/queue-store";
 import { useRotationStore } from "@/stores/rotation-store";
@@ -273,6 +274,8 @@ export function QueuePanel() {
   const reorderBySongId = useQueueStore((s) => s.reorderBySongId);
   const clearQueue = useQueueStore((s) => s.clearQueue);
   const songs = useLibraryStore((s) => s.songs);
+  const videoItems = useCatalogStore((s) => s.videoItems);
+  const previewItems = useCatalogStore((s) => s.previewItems);
   const active = useRotationStore((s) => s.active);
   const singerNames = useRotationStore((s) => s.singerNames);
   const queueSingers = useRotationStore((s) => s.queueSingers);
@@ -335,8 +338,12 @@ export function QueuePanel() {
   );
 
   const getSongLabel = useCallback(
-    (songId: string) => getSong(songId)?.title || songId.slice(0, 8),
-    [getSong],
+    (songId: string) =>
+      getSong(songId)?.title ||
+      videoItems[songId]?.title ||
+      previewItems[songId]?.title ||
+      songId.slice(0, 8),
+    [getSong, videoItems, previewItems],
   );
 
   const clearDragState = useCallback(() => {
@@ -515,7 +522,13 @@ export function QueuePanel() {
               <div className="space-y-1">
                 {filteredQueue.map((songId, index) => {
                   const song = getSong(songId);
-                  const title = song?.title || songId.slice(0, 8);
+                  const video = videoItems[songId];
+                  const preview = previewItems[songId];
+                  const title =
+                    song?.title ||
+                    video?.title ||
+                    preview?.title ||
+                    songId.slice(0, 8);
                   const dropIndicator =
                     songId === overSongId
                       ? getDropIndicatorPosition(activeIndex, overIndex)
@@ -528,7 +541,12 @@ export function QueuePanel() {
                       index={index}
                       queueLength={filteredQueue.length}
                       title={title}
-                      artist={song?.artist || t("common.unknownArtist")}
+                      artist={
+                        song?.artist ||
+                        video?.channel ||
+                        preview?.artist ||
+                        t("common.unknownArtist")
+                      }
                       singer={
                         active ? (queueSingers.get(songId) ?? null) : undefined
                       }

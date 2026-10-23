@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Download } from "lucide-react";
+import { Tooltip } from "@/components/Overlay/Tooltip";
+import { StreamingCover } from "@/components/Catalog/StreamingCover";
 import { CoverArtThumbnail } from "@/components/Shared/CoverArtThumbnail";
 import { usePlayerStore } from "@/stores/player-store";
 import { useLibraryStore } from "@/stores/library-store";
+import { sourceAllows, useCatalogStore } from "@/stores/catalog-store";
 import type { PlaybackBarDensity } from "./playback-bar-layout";
 
 interface NowPlayingInfoProps {
@@ -17,6 +21,11 @@ export function NowPlayingInfo({
   const { t } = useTranslation();
   const snapshot = usePlayerStore((s) => s.snapshot);
   const songs = useLibraryStore((s) => s.songs);
+  const videoItems = useCatalogStore((s) => s.videoItems);
+  const previewItems = useCatalogStore((s) => s.previewItems);
+  const importTracks = useCatalogStore((s) => s.importTracks);
+  const sources = useCatalogStore((s) => s.sources);
+  const sourceStates = useCatalogStore((s) => s.sourceStates);
 
   if (!snapshot?.song_id) {
     return (
@@ -29,8 +38,15 @@ export function NowPlayingInfo({
   }
 
   const song = songs.find((s) => s.hash === snapshot.song_id);
-  const title = song?.title || t("common.unknownTitle");
-  const artist = song?.artist || t("common.unknownArtist");
+  const video = videoItems[snapshot.song_id];
+  const preview = previewItems[snapshot.song_id];
+  const title =
+    song?.title || video?.title || preview?.title || t("common.unknownTitle");
+  const artist =
+    song?.artist ||
+    video?.channel ||
+    preview?.artist ||
+    t("common.unknownArtist");
   const hideArtist = density === "tight";
   const showCoverArt = !hideCoverArt && (song?.has_cover_art ?? false);
 
@@ -55,6 +71,13 @@ export function NowPlayingInfo({
           className="h-12 w-12 shrink-0"
         />
       )}
+      {preview && !hideCoverArt && (
+        <StreamingCover
+          url={preview.cover_url}
+          size={96}
+          className="size-12 shrink-0 rounded-md"
+        />
+      )}
       <div className="flex min-w-0 flex-col overflow-hidden">
         <MarqueeTitle title={title} />
         {!hideArtist && (
@@ -63,6 +86,31 @@ export function NowPlayingInfo({
           </span>
         )}
       </div>
+      {preview &&
+        density !== "tight" &&
+        sourceAllows(
+          sources.find((source) => source.source_id === preview.source_id),
+          "import",
+          sourceStates[preview.source_id]?.session,
+        ) && (
+          <Tooltip label={t("catalog.streaming.importToSing")}>
+            <button
+              type="button"
+              aria-label={t("catalog.streaming.importToSing")}
+              onClick={() =>
+                void importTracks(
+                  [preview.remote_track_id],
+                  null,
+                  preview.title,
+                  preview.source_id,
+                )
+              }
+              className="flex size-7 shrink-0 items-center justify-center rounded-full text-[var(--color-accent)] hover:bg-[var(--color-ghost-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
+            >
+              <Download className="size-4" aria-hidden="true" />
+            </button>
+          </Tooltip>
+        )}
     </div>
   );
 }
