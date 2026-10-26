@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 describe("audience plain-text paging listener cleanup when unmount races listen()", () => {
   test("setup function checks cancelled flag after await listen (RED)", async () => {

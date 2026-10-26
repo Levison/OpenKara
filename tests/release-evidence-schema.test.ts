@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 const schema = JSON.parse(
   readFileSync("./schemas/release-evidence.schema.json", "utf8"),

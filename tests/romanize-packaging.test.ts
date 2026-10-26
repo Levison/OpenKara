@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 describe("romanize worker packaging", () => {
   test("uses ES module workers so engine import() can code-split", async () => {

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import type { TFunction } from "i18next";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 import {
   REMOTE_AUTH_CANCELLED,
   REMOTE_AUTH_POLL_INTERVAL_MS,

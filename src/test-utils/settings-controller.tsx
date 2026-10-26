@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { vi } from "vitest";
+import { vi } from "vite-plus/test";
 import { SettingsControllerContext } from "@/components/Settings/SettingsController.context";
 import {
   createMockBackend,

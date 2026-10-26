@@ -2,7 +2,14 @@
 
 import { act } from "react";
 import { createRoot } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import { useCatalogStore } from "@/stores/catalog-store";
 import type { SourceSnapshot } from "@/types/ipc";
 import { MainContentView } from "./MainContentView";

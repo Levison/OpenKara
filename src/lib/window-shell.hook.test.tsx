@@ -2,7 +2,7 @@
 
 import { act } from "react";
 import { createRoot } from "react-dom/client";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 import { BackendProvider } from "@/lib/backend";
 import { createMockBackend } from "@/lib/backend/mock-backend";
 import { MAC_WINDOW_SHELL_STATE, useWindowShellState } from "./window-shell";

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 
 const { mockEmit, mockEmitTo, mockStartAirPlayPlainTextPagePending } =
   vi.hoisted(() => ({
@@ -97,7 +97,9 @@ describe("plain-text page controls", () => {
 
     expect(mockEmit).toHaveBeenCalledWith(
       "openkara://local-audience-output-state",
-      { active: true },
+      {
+        active: true,
+      },
     );
   });
 

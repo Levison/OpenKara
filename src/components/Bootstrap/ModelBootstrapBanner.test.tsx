@@ -1,6 +1,13 @@
 // @vitest-environment jsdom
 
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { createMockBackend } from "@/lib/backend/mock-backend";

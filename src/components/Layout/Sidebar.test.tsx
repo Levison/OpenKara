@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vite-plus/test";
 import { BackendProvider } from "@/lib/backend";
 import { createMockBackend } from "@/lib/backend/mock-backend";
 import { Sidebar } from "./Sidebar";

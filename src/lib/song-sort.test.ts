@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import { compareSongs, sortSongs } from "./song-sort";
 import { buildAlphabetIndex, bucketForSortKey } from "./alphabet-index";
 import type { Song } from "@/types/ipc";

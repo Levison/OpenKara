@@ -1,6 +1,13 @@
 // @vitest-environment jsdom
 
-import { afterAll, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 
 const isPermissionGranted = vi.fn<() => Promise<boolean>>();
 const requestPermission = vi.fn<() => Promise<string>>();

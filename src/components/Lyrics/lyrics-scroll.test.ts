@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import { FOCUS_ALIGN_POSITION, getCenteredScrollTop } from "./lyrics-scroll";
 
 describe("getCenteredScrollTop", () => {

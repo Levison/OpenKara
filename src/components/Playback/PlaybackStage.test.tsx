@@ -2,7 +2,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vite-plus/test";
 import { createMockBackend } from "@/lib/backend/mock-backend";
 import { PlaybackStage } from "./PlaybackStage";
 import type { Song } from "@/types/ipc";

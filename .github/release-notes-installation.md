@@ -25,8 +25,4 @@ brew install thedavidweng/tap/openkara
 winget install thedavidweng.OpenKara
 ```
 
-**macOS Gatekeeper note:** If macOS says the app is damaged or can't be opened, run:
-
-```bash
-xattr -rd com.apple.quarantine /Applications/OpenKara.app
-```
+Official macOS releases from v0.16.2 are signed with Developer ID and notarized by Apple.

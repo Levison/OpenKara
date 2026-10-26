@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { afterAll, beforeAll, describe, expect, test } from "vite-plus/test";
 import handleWebDAV from "./webdav.mjs";
 import handleGoogleDrive from "./google-drive.mjs";
 import handleDropbox from "./dropbox.mjs";

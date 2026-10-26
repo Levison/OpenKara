@@ -2,7 +2,14 @@
 import userEvent from "@testing-library/user-event";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import { YoutubePasteLink } from "./YoutubePasteLink";
 
 const {

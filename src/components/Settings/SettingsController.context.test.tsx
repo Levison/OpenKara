@@ -2,7 +2,7 @@
 
 import { act } from "react";
 import { createRoot } from "react-dom/client";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import { createSettingsHarness } from "@/test-utils/settings-controller";
 import {
   SettingsControllerContext,

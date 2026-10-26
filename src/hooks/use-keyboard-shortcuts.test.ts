@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 import { renderHook as renderHookRaw, act } from "@testing-library/react";
 import { createMockBackend } from "@/lib/backend/mock-backend";
 import { withBackend } from "@/test-utils/backend";

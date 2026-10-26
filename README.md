@@ -108,11 +108,7 @@ brew install thedavidweng/tap/openkara
 winget install thedavidweng.OpenKara
 ```
 
-**macOS Gatekeeper note:** If macOS says the app is damaged or can't be opened, run:
-
-```bash
-xattr -rd com.apple.quarantine /Applications/OpenKara.app
-```
+Official macOS releases from v0.16.2 are signed with Developer ID and notarized by Apple.
 
 **Windows SmartScreen note:** OpenKara isn't code-signed yet, so Windows may show a "Windows protected your PC" screen on first run. Click **More info**, then **Run anyway** to launch it.
 
@@ -122,9 +118,9 @@ On first launch, OpenKara will prompt you to create a Karaoke Library and start 
 
 **Prerequisites:**
 
-- [Node.js](https://nodejs.org/) 24 (same as CI; the repo root has `.nvmrc`)
+- [Node.js](https://nodejs.org/) 26 (`mise.toml` selects the version used by CI)
 - [pnpm](https://pnpm.io/) 12
-- [Rust](https://rustup.rs/) stable toolchain
+- [Rust](https://rustup.rs/) 1.99.1 toolchain (`rust-toolchain.toml` selects it)
 - Platform dependencies for [Tauri 2](https://v2.tauri.app/start/prerequisites/)
 
 ```bash
@@ -307,9 +303,9 @@ filter such as `OPENKARA_LOG=openkara_lib=trace,warn`).
 
 ### Prerequisites
 
-- Node.js 24 (`nvm use` or `fnm use` reads `.nvmrc` / `.node-version`)
+- Node.js 26 (`mise.toml` selects the version used by CI)
 - pnpm 12
-- Rust stable via [rustup](https://rustup.rs/)
+- Rust 1.99.1 via [rustup](https://rustup.rs/) (`rust-toolchain.toml` selects it)
 - [Tauri 2 prerequisites](https://v2.tauri.app/start/prerequisites/) for your platform
 
 ### Setup
@@ -326,9 +322,9 @@ pnpm tauri dev               # start dev server with hot reload
 ### Running Tests
 
 ```bash
-cd src-tauri && cargo test -q   # backend tests (175+; see .agents/skills/ci-notes)
-pnpm lint                    # oxlint
-pnpm format                  # oxfmt check
+cd src-tauri && cargo test -q   # backend tests
+pnpm lint                    # Vite+ lint
+pnpm format                  # Vite+ format check
 node --run check:standards   # standards route
 ```
 

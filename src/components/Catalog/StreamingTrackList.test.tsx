@@ -10,7 +10,7 @@ import {
   expect,
   test,
   vi,
-} from "vitest";
+} from "vite-plus/test";
 import { useCatalogStore } from "@/stores/catalog-store";
 import { useNotificationStore } from "@/stores/notification-store";
 import { usePlayerStore } from "@/stores/player-store";

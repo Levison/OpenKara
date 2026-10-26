@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 const projectRoot = fileURLToPath(new URL("..", import.meta.url));
 
@@ -178,7 +178,9 @@ describe("release workflow", () => {
     expect(reusableWorkflow).not.toMatch(
       /tauri build[^\n]*--features automation-driver/,
     );
-    expect(reusableWorkflow).toMatch(/cache:\s*pnpm/);
+    const setup = readWorkflowStep(reusableWorkflow, "Setup Vite+ and Node.js");
+    expect(setup).toContain("uses: voidzero-dev/setup-vp@");
+    expect(setup).toMatch(/cache:\s*true/);
     // UIA probe builds in parallel with cargo, not as a serial follow-up step.
     expect(reusableWorkflow).toContain('Start-Process -FilePath "dotnet"');
     expect(reusableWorkflow).toContain("--verify-input-layout");
@@ -421,7 +423,9 @@ describe("release workflow", () => {
       writeFileSync(
         join(root, "gh"),
         '#!/bin/sh\nprintf \'%s\\n\' "$@" > "$CALL_LOG"\n',
-        { mode: 0o755 },
+        {
+          mode: 0o755,
+        },
       );
       const script = readWorkflowStep(
         readProjectFile(".github/workflows/release.yml"),

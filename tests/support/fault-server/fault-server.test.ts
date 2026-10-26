@@ -3,7 +3,7 @@ import { createServer } from "node:http";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { afterAll, beforeAll, describe, expect, test } from "vite-plus/test";
 import { FAULTS } from "./faults.mjs";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));

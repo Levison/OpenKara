@@ -3,7 +3,14 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
-import { describe, expect, test, vi, beforeEach, afterEach } from "vitest";
+import {
+  describe,
+  expect,
+  test,
+  vi,
+  beforeEach,
+  afterEach,
+} from "vite-plus/test";
 import { LyricLine } from "./LyricLine";
 
 const { mockPlayerState, mockSeek } = vi.hoisted(() => ({

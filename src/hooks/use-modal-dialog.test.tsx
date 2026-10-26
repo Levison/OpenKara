@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { useRef, useState } from "react";
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vite-plus/test";
 import {
   cleanup,
   fireEvent,

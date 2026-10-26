@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vite-plus/test";
 import type { RomanizeResult, Romanizer } from "lyric-romanizer";
 import { OPTIONS_BY_LANGUAGE, romanizeLinesWith } from "./romanize-options";
 import { SONG_LANGUAGES } from "@/components/Library/song-list-item-menu";

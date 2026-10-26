@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { act, cleanup } from "@testing-library/react";
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vite-plus/test";
 import { createMockBackend } from "@/lib/backend/mock-backend";
 import { MODEL_DOWNLOAD_FLASH_MS } from "@/lib/task-progress";
 import { renderWithBackend } from "@/test-utils/backend";

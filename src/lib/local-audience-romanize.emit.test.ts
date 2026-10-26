@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 
 const { mockEmit, mockEmitTo } = vi.hoisted(() => ({
   mockEmit: vi.fn(),
@@ -57,7 +57,10 @@ describe("local-audience-romanize emit helpers", () => {
     expect(mockEmitTo).toHaveBeenCalledWith(
       MAIN_WINDOW_LABEL,
       LOCAL_AUDIENCE_ROMANIZE_SET_EVENT,
-      { songId: "song-1", showRomanized: true },
+      {
+        songId: "song-1",
+        showRomanized: true,
+      },
     );
   });
 

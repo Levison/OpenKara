@@ -3,7 +3,14 @@
 import userEvent from "@testing-library/user-event";
 import { act, type ReactNode } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import { Tooltip, TooltipProvider } from "./Tooltip";
 
 async function flushEffects() {

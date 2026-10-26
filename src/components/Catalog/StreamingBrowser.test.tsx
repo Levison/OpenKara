@@ -15,7 +15,7 @@ import {
   expect,
   test,
   vi,
-} from "vitest";
+} from "vite-plus/test";
 import { createMockBackend } from "@/lib/backend/mock-backend";
 import { BackendProvider } from "@/lib/backend";
 import { ToastContainer } from "@/components/Layout/ToastContainer";

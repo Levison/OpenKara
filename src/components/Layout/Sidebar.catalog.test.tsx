@@ -1,7 +1,14 @@
 // @vitest-environment jsdom
 import { act } from "react";
 import { createRoot } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import { BackendProvider } from "@/lib/backend";
 import { createMockBackend } from "@/lib/backend/mock-backend";
 import { Sidebar } from "./Sidebar";

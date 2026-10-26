@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 import { LyricsFontSizeControl } from "./LyricsFontSizeControl";
 
 const { mockSettingsState } = vi.hoisted(() => ({

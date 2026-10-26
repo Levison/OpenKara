@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 import { LyricsOffsetControl } from "./LyricsOffsetControl";
 
 const { mockLyricsState } = vi.hoisted(() => ({

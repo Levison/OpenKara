@@ -13,13 +13,19 @@
 //   7. The Playwright job runs in the official image pinned by digest, at
 //      the same version as the lockfile, without the apt-based install.
 
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  mkdtempSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { runInNewContext } from "node:vm";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import {
   ALL_JOBS,
   classifyChanges,
@@ -96,6 +102,25 @@ function extractGateNeeds(yaml: string): string[] {
 // ── Tests ─────────────────────────────────────────────────────────────
 
 describe("CI workflow drift protection", () => {
+  test("keeps CI toolchains aligned with local version pins", () => {
+    const node = readProjectFile(".node-version").trim();
+    const rust = readProjectFile("rust-toolchain.toml").match(
+      /channel = "([^"]+)"/,
+    )?.[1];
+    expect(rust).toBeTruthy();
+    expect(readProjectFile("mise.toml")).toContain(`node = "${node}"`);
+    for (const file of readdirSync(join(projectRoot, ".github/workflows"))) {
+      if (!file.endsWith(".yml")) continue;
+      const workflow = readProjectFile(`.github/workflows/${file}`);
+      for (const [, version] of workflow.matchAll(/node-version: ([\d.]+)/g)) {
+        expect(version, `${file}: Node.js`).toBe(node);
+      }
+      for (const [, version] of workflow.matchAll(/toolchain: ([\d.]+)/g)) {
+        expect(version, `${file}: Rust`).toBe(rust);
+      }
+    }
+  });
+
   const ciYaml = readProjectFile(".github/workflows/ci.yml");
   const workflowJobs = extractJobIds(ciYaml);
 

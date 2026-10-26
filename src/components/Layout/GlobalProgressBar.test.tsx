@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { renderToStaticMarkup } from "react-dom/server";
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vite-plus/test";
 import { cleanup, fireEvent, render } from "@testing-library/react";
 import type { ActiveTask } from "@/lib/task-progress";
 import { GlobalProgressBar, TaskProgressBar } from "./GlobalProgressBar";

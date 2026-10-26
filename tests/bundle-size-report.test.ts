@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 const projectRoot = fileURLToPath(new URL("..", import.meta.url));
 const measureScript = join(projectRoot, "scripts/ci/measure-bundle-size.mjs");

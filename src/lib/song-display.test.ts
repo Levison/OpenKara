@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import { songDisplayTitle } from "./song-display";
 import type { Song } from "@/types/ipc";
 

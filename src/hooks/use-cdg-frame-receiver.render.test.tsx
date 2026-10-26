@@ -2,7 +2,14 @@
 
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 
 // The coalescing painter uses setTimeout(flush, 0) to batch frames into the
 // next macrotask. We need fake timers to control this deterministically.

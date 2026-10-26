@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vite-plus/test";
 import { ensureArrayBuffer } from "@/lib/cdg-protocol";
 import { getCdgSyncBucket, startCdgPositionSync } from "./use-cdg-sync";
 

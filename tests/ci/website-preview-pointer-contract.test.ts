@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { JSDOM } from "jsdom";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 const projectRoot = fileURLToPath(new URL("../..", import.meta.url));
 const siteCss = readFileSync(join(projectRoot, "website/src/site.css"), "utf8");

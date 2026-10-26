@@ -1,6 +1,13 @@
 // @vitest-environment jsdom
 
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import {
+  describe,
+  expect,
+  it,
+  vi,
+  beforeEach,
+  afterEach,
+} from "vite-plus/test";
 import { fireEvent, cleanup } from "@testing-library/react";
 import type { ReactElement } from "react";
 import type { Song } from "@/types/ipc";

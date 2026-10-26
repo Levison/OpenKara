@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import { romanizeLyricsLines } from "../../website/src/preview-romanizer";
 
 describe("preview romanizer stub", () => {

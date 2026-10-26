@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 import { createRuntimeEventRuntime } from "@/runtime/event-runtime";
 
 describe("runtime event runtime", () => {

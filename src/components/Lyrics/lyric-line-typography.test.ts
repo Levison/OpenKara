@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import {
   CENTERED_BG_FONT_SIZE,
   CENTERED_LINE_FONT_SIZE_BASE,

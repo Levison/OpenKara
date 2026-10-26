@@ -6,7 +6,7 @@ import {
   render,
   screen,
 } from "@testing-library/react";
-import { afterEach, beforeEach, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, expect, test, vi } from "vite-plus/test";
 import { createMockBackend } from "@/lib/backend/mock-backend";
 import {
   createCatalogStore,

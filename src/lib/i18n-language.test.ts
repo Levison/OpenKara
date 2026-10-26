@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { createLanguageTable } from "./i18n-language";
 
 function setNavigatorLanguage(value: string): void {

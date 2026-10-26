@@ -7,7 +7,7 @@
 // Fixtures are derived from real PRs (#147, #148, #149, #152, #153, #154)
 // plus synthetic cases covering docs, deps, unknown, and mixed changes.
 
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import {
   classifyChanges,
   classifyFile,

@@ -3,7 +3,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
-import { describe, expect, test, vi, beforeEach } from "vitest";
+import { describe, expect, test, vi, beforeEach } from "vite-plus/test";
 import { PlaybackBar } from "./PlaybackBar";
 
 const { mockPlayerState } = vi.hoisted(() => ({

@@ -2,7 +2,14 @@
 
 import { act } from "react";
 import { createRoot } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import { resetCoverArtCacheForTests } from "@/lib/cover-art";
 import type { CoverArtBytes } from "@/types/ipc";
 

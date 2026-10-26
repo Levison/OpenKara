@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import { createCatalogCommands } from "@/lib/tauri/catalog";
 import { E2E_MOCK_DATA } from "./tauri-mock-data";
 import { createTauriMock } from "./tauri-mock-impl";

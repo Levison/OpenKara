@@ -8,7 +8,14 @@ import {
   waitFor,
 } from "@testing-library/react";
 import type { ReactElement } from "react";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import { createMockBackend } from "@/lib/backend/mock-backend";
 import { renderWithBackend } from "@/test-utils/backend";
 import type { DebugInfo } from "@/types/ipc";

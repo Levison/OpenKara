@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import { pointInConvexPolygon, isInSafetyZone } from "./submenu-safety-zone";
 import type { Point } from "./submenu-safety-zone";
 

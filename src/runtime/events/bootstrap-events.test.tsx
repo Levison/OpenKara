@@ -2,7 +2,7 @@
 
 import { act } from "react";
 import { createRoot } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test } from "vite-plus/test";
 import { useNotificationStore } from "@/stores/notification-store";
 import { useRuntimeBootstrapStore } from "@/stores/runtime-bootstrap-store";
 import { createRecordingRuntimeEventSource } from "@/runtime/event-source";

@@ -1,6 +1,13 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import { useCatalogStore, type ImportRun } from "@/stores/catalog-store";
 import { StreamingImportBar } from "./StreamingImportBar";
 

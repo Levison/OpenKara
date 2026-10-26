@@ -3,8 +3,8 @@ pre-commit:
   commands:
     oxfmt:
       glob: "*.{ts,tsx,js,jsx,mjs,cjs,json,css,md,html,yml,yaml}"
-      # src-tauri is entirely in oxfmt's ignorePatterns, so it must not reach
-      # oxfmt at all: given only ignored paths, oxfmt exits non-zero with
+      # src-tauri is entirely in fmt's ignorePatterns, so it must not reach
+      # vp fmt at all: given only ignored paths, vp fmt exits non-zero with
       # "Expected at least one target file" and blocks the commit (a catalog
       # snapshot bump stages nothing else). lefthook v2 matches `exclude` as
       # glob patterns — a regex here silently matches nothing, so keep these
@@ -15,7 +15,7 @@ pre-commit:
       # sh -c with positional args sidesteps word-splitting differences
       # between sh and zsh parents; zero args is a clean pass, which also
       # covers any future ignore rule that empties the list.
-      run: 'sh -c ''[ $# -eq 0 ] || pnpm exec oxfmt "$@"'' -- {staged_files}'
+      run: 'sh -c ''[ $# -eq 0 ] || pnpm exec vp fmt "$@"'' -- {staged_files}'
       stage_fixed: true
     cargo-fmt:
       glob: "*.rs"

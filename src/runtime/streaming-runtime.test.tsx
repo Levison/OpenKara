@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vite-plus/test";
 import { StreamingImportBar } from "@/components/Catalog/StreamingImportBar";
 import { LibraryDecisionDialog } from "@/components/Library/LibraryDecisionDialog";
 import { useCatalogStore } from "@/stores/catalog-store";

@@ -57,13 +57,7 @@ OpenKara 会先在线查找时间同步歌词。也可以用音频文件里内�
 
 ### macOS 提示应用已损坏或者打不开，怎么办？
 
-这是因为 OpenKara 没有经过 Apple 公证。打开终端运行：
-
-```bash
-xattr -rd com.apple.quarantine /Applications/OpenKara.app
-```
-
-然后重新打开应用就行。只需要做一次。
+从 v0.16.2 起，macOS 正式发行版使用 Developer ID 签名并通过 Apple 公证。请从 [GitHub Releases](https://github.com/thedavidweng/OpenKara/releases) 下载符合本机架构的最新 macOS 版本。如果仍被阻止，请反馈 macOS 的具体提示和应用版本。
 
 ### Windows 提示"Windows 已保护你的电脑"，怎么办？
 

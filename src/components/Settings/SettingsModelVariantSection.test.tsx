@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vite-plus/test";
 import { createSettingsHarness } from "@/test-utils/settings-controller";
 import type {
   CommandError,

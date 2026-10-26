@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vite-plus/test";
 import { KaraokeFillController } from "@/components/Lyrics/karaoke-fill";
 import { getLineVisualTargets, LyricsLineRuntime } from "./lyrics-line-runtime";
 

@@ -1,4 +1,11 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import { createMockBackend } from "@/lib/backend/mock-backend";
 import {
   batchSeparationInProgress,
@@ -189,13 +196,19 @@ describe("batchSeparationLabelArgs", () => {
   test("names the song being worked on as one past the completed count", () => {
     expect(
       batchSeparationLabelArgs(batchProgress({ total: 3, completed: 1 })),
-    ).toEqual({ current: 2, total: 3 });
+    ).toEqual({
+      current: 2,
+      total: 3,
+    });
   });
 
   test("clamps the song counter to the batch total on the last song", () => {
     expect(
       batchSeparationLabelArgs(batchProgress({ total: 2, completed: 2 })),
-    ).toEqual({ current: 2, total: 2 });
+    ).toEqual({
+      current: 2,
+      total: 2,
+    });
   });
 });
 

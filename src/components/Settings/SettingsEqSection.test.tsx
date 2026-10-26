@@ -8,7 +8,7 @@ import {
   screen,
 } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vite-plus/test";
 import type { SettingsController } from "@/lib/settings-controller";
 import { createInitializedSettingsHarness } from "@/test-utils/settings-controller";
 import { SettingsControllerContext } from "./SettingsController.context";

@@ -360,17 +360,10 @@ impl StreamingSource for FakeStreamingSource {
                     .and_then(|value| value.to_str())
                     .unwrap_or("bin");
                 let dest = std::env::temp_dir().join(format!(
-                    "openkara-fake-{}-{}.{}",
-                    spec.remote_track_id,
-                    std::time::SystemTime::now()
-                        .duration_since(std::time::UNIX_EPOCH)
-                        .map(|duration| duration.as_nanos())
-                        .unwrap_or(0),
+                    "openkara-fake-{}.{}",
+                    uuid::Uuid::new_v4(),
                     ext
                 ));
-                if let Some(parent) = dest.parent() {
-                    let _ = std::fs::create_dir_all(parent);
-                }
                 progress.downloading(Some(0));
                 std::fs::copy(path, &dest).map_err(|error| {
                     CatalogError::Internal(format!("failed to stage fake file: {error}"))
@@ -489,6 +482,19 @@ mod tests {
                     std::fs::read(&file.path).expect("staged"),
                     std::fs::read(&path).expect("source")
                 );
+                let StreamingResolveOutcome::File(second) = source
+                    .resolve("playable", &NoResolveProgress)
+                    .expect("resolve again")
+                else {
+                    panic!("expected file");
+                };
+                assert_ne!(file.path, second.path);
+                std::fs::remove_file(&file.path).expect("consume first download");
+                assert_eq!(
+                    std::fs::read(&second.path).expect("second download survives"),
+                    std::fs::read(&path).expect("source survives")
+                );
+                std::fs::remove_file(second.path).expect("consume second download");
             }
             StreamingResolveOutcome::Refusal(_) => panic!("expected file"),
         }

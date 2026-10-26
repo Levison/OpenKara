@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vite-plus/test";
 import type { SettingsController } from "@/lib/settings-controller";
 import { createSettingsHarness } from "@/test-utils/settings-controller";
 import type { IntegrityReport } from "@/types/ipc";

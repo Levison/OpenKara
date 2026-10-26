@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 import type { ContextMenuItem } from "@/components/Library/ContextMenu";
 import { createMockBackend } from "@/lib/backend/mock-backend";
 import {

@@ -3,7 +3,14 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import type { AirPlayOutputStateEvent } from "@/types/ipc";
 import type { LyricLine } from "@/types/ipc";
 import { LyricsPanel } from "./LyricsPanel";

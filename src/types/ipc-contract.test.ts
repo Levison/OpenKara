@@ -16,7 +16,7 @@
  * These are STATIC tests -- they validate type shapes at compile time via
  * assignability checks and verify command name registries at runtime.
  */
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 import type {
   AppSettings,

@@ -2,7 +2,14 @@
 
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import { createSettingsHarness } from "@/test-utils/settings-controller";
 import type { IntegrityReport } from "@/types/ipc";
 import { IntegrityReportModal } from "./IntegrityReportModal";

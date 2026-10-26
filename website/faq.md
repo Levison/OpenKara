@@ -57,13 +57,7 @@ OpenKara starts downloading the default model in the background after first laun
 
 ### macOS says the app is damaged or can't be opened. What do I do?
 
-This happens because OpenKara isn't notarized with Apple. Open Terminal and run:
-
-```bash
-xattr -rd com.apple.quarantine /Applications/OpenKara.app
-```
-
-Then open the app again. This only needs to be done once.
+Official macOS releases from v0.16.2 are signed with Developer ID and notarized by Apple. Download the latest macOS release for your architecture from [GitHub Releases](https://github.com/thedavidweng/OpenKara/releases). If that build is blocked, report the exact macOS message and app version.
 
 ### Windows says "Windows protected your PC". What do I do?
 

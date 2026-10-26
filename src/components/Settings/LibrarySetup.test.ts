@@ -1,5 +1,5 @@
 import { Cloud } from "lucide-react";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import { librarySetupChoices, remoteLibraryProviders } from "./LibrarySetup";
 
 describe("LibrarySetup", () => {

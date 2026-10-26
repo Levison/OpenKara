@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vite-plus/test";
 import type { WindowShellState } from "@/lib/window-shell";
 import { WindowChrome } from "./WindowChrome";
 

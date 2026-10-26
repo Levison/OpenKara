@@ -5,6 +5,8 @@
 javascript:
   - changed-files:
       - any-glob-to-any-file:
+          - ".node-version"
+          - "mise.toml"
           - "src/**"
           - "vite.config.ts"
           - "tsconfig.json"
@@ -12,8 +14,6 @@ javascript:
           - "tsconfig.app.json"
           - "website/**"
           - "public/**"
-          - "oxlintrc.json"
-          - ".oxfmtrc.json"
           - "knip.json"
           - "index.html"
           - "scripts/**"

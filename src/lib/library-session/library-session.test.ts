@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import { createMockBackend } from "@/lib/backend/mock-backend";
 import type { LibraryRegistrySnapshot, RegisteredLibrary } from "@/types/ipc";
 import { createLibrarySession } from "./library-session";

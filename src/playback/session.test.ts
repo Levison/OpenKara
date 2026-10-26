@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vite-plus/test";
 import type {
   PlaybackStateSnapshot,
   SeparationStatusSnapshot,
@@ -880,7 +880,10 @@ describe("online preview queue ids", () => {
     );
     expect(
       onlinePreviewReference("stream:alpha:same%3A%2Fid%25%E9%9B%AA"),
-    ).toEqual({ sourceId: "alpha", remoteTrackId: "same:/id%雪" });
+    ).toEqual({
+      sourceId: "alpha",
+      remoteTrackId: "same:/id%雪",
+    });
     expect(onlinePreviewReference("stream:alpha:%ZZ")).toBeNull();
     expect(onlinePreviewReference("stream:unknown:")).toBeNull();
     expect(onlinePreviewReference("stream:Bad:id")).toBeNull();

@@ -2,7 +2,7 @@
 
 import { act } from "react";
 import { createRoot } from "react-dom/client";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 import {
   LOCAL_AUDIENCE_ROMANIZE_SET_EVENT,
   LOCAL_AUDIENCE_ROMANIZE_SYNC_REQUEST_EVENT,

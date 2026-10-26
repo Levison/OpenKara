@@ -41,8 +41,8 @@ Locale files are **auto-loaded**: `src/lib/i18n.ts` globs `src/locales/*.json` a
 
    ```
    node scripts/check-i18n.mjs      # key structure + plural categories
-   pnpm vitest run src/locales      # parses, placeholders, non-empty values
-   pnpm vitest run src/lib/i18n     # system-language detection
+   pnpm exec vp test run src/locales      # parses, placeholders, non-empty values
+   pnpm exec vp test run src/lib/i18n     # system-language detection
    ```
 
    All must pass. `check-i18n` prints a per-file report; fix every `MISSING`
@@ -90,7 +90,7 @@ warning (it is simply never selected).
 ## Translation guidelines
 
 - **Keys are sacred.** Never rename, add, or remove keys. Only translate the values (plural categories per your language are the sole exception).
-- **Keep `{{variable}}` placeholders as-is.** The system injects these dynamic values at runtime (e.g., `"Separating {{current}}/{{total}}"`). Translate the surrounding text; leave the placeholders untouched. A dropped placeholder fails `pnpm vitest run src/locales`.
+- **Keep `{{variable}}` placeholders as-is.** The system injects these dynamic values at runtime (e.g., `"Separating {{current}}/{{total}}"`). Translate the surrounding text; leave the placeholders untouched. A dropped placeholder fails `pnpm exec vp test run src/locales`.
 - **Keep labels short.** Button, menu, tab, and toolbar strings are laid out in tight space — match English length where you can.
 - **Preserve special characters.** Keep unicode escapes like `…` (ellipsis) or replace them with the actual character (`…`).
 - **Don't translate brand/format names.** Keep "OpenKara", "ONNX Runtime", "LRC", "TTML", "Lyricify", "CD+G", and model names ("htdemucs", …) unchanged.

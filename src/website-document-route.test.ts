@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import { documentHref, getDocumentRoute } from "../website/src/document-route";
 
 describe("website document routes", () => {

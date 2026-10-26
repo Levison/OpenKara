@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 
 // scripts/resolve-model.mjs, scripts/setup.sh, CI, and the Rust catalog
 // client must all resolve model artifacts from the same pinned catalog
@@ -82,7 +82,9 @@ describe("model resolver parity", () => {
     const sha = execFileSync(
       "node",
       [resolverPath, "--variant", "htdemucs", "--field", "sha256"],
-      { encoding: "utf8" },
+      {
+        encoding: "utf8",
+      },
     ).trim();
 
     expect(sha).toMatch(/^[0-9a-f]{64}$/);

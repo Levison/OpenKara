@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, lazyPlugins } from "vite-plus";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath, URL } from "node:url";
@@ -40,7 +40,39 @@ export default defineConfig(async () => ({
       process.env.npm_package_version || "unknown",
     ),
   },
-  plugins: [react(), tailwindcss(), kuromojiDictPlugin()],
+  plugins: lazyPlugins(() => [react(), tailwindcss(), kuromojiDictPlugin()]),
+  lint: {
+    plugins: ["react", "typescript", "jsx-a11y"],
+    rules: {
+      "react/react-in-jsx-scope": "off",
+      "react/only-export-components": "warn",
+      "react/refs": "off",
+      "react/globals": "off",
+      "react/set-state-in-effect": "off",
+      "react/incompatible-library": "off",
+      "jsx-a11y/prefer-tag-over-role": "off",
+    },
+    ignorePatterns: [
+      ".claude",
+      ".worktrees",
+      "dist",
+      "node_modules",
+      "src-tauri/target",
+      "src-tauri/gen",
+    ],
+  },
+  fmt: {
+    singleQuote: false,
+    trailingComma: "all",
+    printWidth: 80,
+    ignorePatterns: [
+      "dist",
+      "node_modules",
+      "src-tauri",
+      "**/*.toml",
+      "CHANGELOG.md",
+    ],
+  },
   test: {
     // CI runners have noisy CPU scheduling under parallel jsdom forks; a
     // trivial render can measure 5+ seconds of wall-clock under contention

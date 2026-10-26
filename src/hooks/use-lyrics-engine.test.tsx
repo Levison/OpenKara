@@ -2,7 +2,14 @@
 
 import { act, useLayoutEffect, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import { createMockBackend } from "@/lib/backend/mock-backend";
 import * as lyricsEngine from "@/lib/lyrics-engine";
 import type { LyricsLineRuntime } from "@/lib/lyrics-line-runtime";

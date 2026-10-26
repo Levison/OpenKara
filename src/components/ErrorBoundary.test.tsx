@@ -3,7 +3,14 @@
 import { screen } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { afterAll, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import { createMockBackend } from "@/lib/backend/mock-backend";
 import { renderWithBackend } from "@/test-utils/backend";
 import { ErrorBoundary } from "./ErrorBoundary";

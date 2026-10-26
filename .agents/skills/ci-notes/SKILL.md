@@ -27,7 +27,7 @@ description: CI environment constraints, CodeQL patterns, and Cursor Cloud notes
 ## Cursor Cloud
 
 - Node.js **24**（与 GitHub Actions `node-version: 24.22.1` 一致；仓库根目录 `.nvmrc` / `.node-version`）
-- System packages (libwebkit2gtk, libasound2-dev, etc.) and Rust stable are pre-installed in the VM snapshot.
+- System packages (libwebkit2gtk, libasound2-dev, etc.) and Rust 1.99.1 (`rust-toolchain.toml`) are pre-installed in the VM snapshot.
 - `pnpm tauri dev` needs a display (X11/Wayland) to open the WebView window.
 - `./scripts/setup.sh` downloads model + ONNX Runtime (~80 MB). Idempotent.
 - Rust 1.85+ required (edition2024 support for `time` crate).

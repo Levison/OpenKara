@@ -106,3 +106,5 @@ src-tauri/icons/OpenKara.icns
 tools/windows-accessibility/**/bin/
 tools/windows-accessibility/**/obj/
 
+.vitest/
+.vite-cache/

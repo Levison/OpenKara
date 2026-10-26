@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, expect, test, beforeEach } from "vitest";
+import { describe, expect, test, beforeEach } from "vite-plus/test";
 import {
   applyWordMask,
   fadeGradientSpec,

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import {
   LOCAL_AUDIENCE_ROMANIZE_STATE_EVENT,
   LOCAL_AUDIENCE_ROMANIZE_SET_EVENT,

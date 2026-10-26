@@ -41,7 +41,7 @@ DMG signature, submits the DMG for notarization, requires `Accepted`, staples th
 DMG, and checks Gatekeeper. Both native architectures must pass these checks
 before installed-app tests and Release Evidence can authorize publication.
 
-Run `pnpm vitest run tests/macos-release-signing.test.ts` for gate tests with
+Run `pnpm exec vp test run tests/macos-release-signing.test.ts` for gate tests with
 controlled Apple tool responses. These tests do not prove Apple acceptance.
 Development and Nightly builds retain their existing signature policy.
 

@@ -2,7 +2,7 @@
 
 import { act } from "react";
 import { createRoot } from "react-dom/client";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
 import type { ShortcutPlatform } from "@/lib/app-shortcuts";
 import { usePlayerStore } from "@/stores/player-store";
 import type { AirPlayOutputStateEvent } from "@/types/ipc";

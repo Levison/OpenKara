@@ -28,7 +28,7 @@ coverage. Run the rest before you open a pull request.
 ```bash
 node --run lint                                  # frontend lint
 node --run build                                 # typecheck and build the frontend
-pnpm vitest run                                  # frontend tests
+pnpm exec vp test run                            # frontend tests
 node --run check:i18n                            # locale key parity
 
 cd src-tauri

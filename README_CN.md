@@ -90,11 +90,7 @@ brew install thedavidweng/tap/openkara
 winget install thedavidweng.OpenKara
 ```
 
-**macOS Gatekeeper 提示：** 如果 macOS 提示应用已损坏或无法打开，请在终端运行：
-
-```bash
-xattr -rd com.apple.quarantine /Applications/OpenKara.app
-```
+从 v0.16.2 起，macOS 正式发行版使用 Developer ID 签名并通过 Apple 公证。
 
 **Windows SmartScreen 提示：** OpenKara 目前还没有代码签名，Windows 首次运行时可能会弹出"Windows 已保护你的电脑"提示。点击**更多信息**，再点击**仍要运行**即可启动。
 
@@ -104,9 +100,9 @@ xattr -rd com.apple.quarantine /Applications/OpenKara.app
 
 **前置条件：**
 
-- [Node.js](https://nodejs.org/) 24（与 CI 一致；仓库根目录含 `.nvmrc`）
+- [Node.js](https://nodejs.org/) 26（`mise.toml` 指定与 CI 一致的版本）
 - [pnpm](https://pnpm.io/) 12
-- [Rust](https://rustup.rs/) stable 工具链
+- [Rust](https://rustup.rs/) 1.99.1 工具链（由 `rust-toolchain.toml` 指定）
 - [Tauri 2](https://v2.tauri.app/start/prerequisites/) 平台依赖
 
 ```bash
@@ -257,9 +253,9 @@ OpenKara 会写入滚动日志文件（默认 info 级别，错误必录），�
 
 ### 前置条件
 
-- Node.js 24（`nvm use` 或 `fnm use` 读取 `.nvmrc` / `.node-version`）
+- Node.js 26（`mise.toml` 指定与 CI 一致的版本）
 - pnpm 12
-- 通过 [rustup](https://rustup.rs/) 安装的 Rust stable
+- 通过 [rustup](https://rustup.rs/) 安装的 Rust 1.99.1（由 `rust-toolchain.toml` 指定）
 - 对应平台的 [Tauri 2 依赖](https://v2.tauri.app/start/prerequisites/)
 
 ### 环境搭建
@@ -276,9 +272,9 @@ pnpm tauri dev               # 启动开发服务器（支持热更新）
 ### 运行测试
 
 ```bash
-cd src-tauri && cargo test -q   # 后端测试（175+；CI 见 .agents/skills/ci-notes）
-pnpm lint                    # oxlint 检查
-pnpm format                  # oxfmt 格式检查
+cd src-tauri && cargo test -q   # 后端测试
+pnpm lint                    # Vite+ lint 检查
+pnpm format                  # Vite+ 格式检查
 ```
 
 ### 构建

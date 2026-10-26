@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import {
   CDG_PROTOCOL_HEADER_SIZE,
   CDG_RGBA_SIZE,

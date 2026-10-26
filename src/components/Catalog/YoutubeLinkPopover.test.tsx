@@ -6,7 +6,14 @@ import {
   render,
   screen,
 } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import { useCatalogStore } from "@/stores/catalog-store";
 import { useSettingsStore } from "@/stores/settings-store";
 import { YoutubeLinkPopover } from "./YoutubeLinkPopover";

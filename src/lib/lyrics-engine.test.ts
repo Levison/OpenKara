@@ -1,6 +1,13 @@
 // @vitest-environment jsdom
 
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import { LyricsScrollControl } from "@/lib/lyrics-session";
 import { Spring } from "@/lib/spring";
 import {

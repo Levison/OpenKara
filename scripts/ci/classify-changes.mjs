@@ -77,8 +77,6 @@ const CATEGORY_PATTERNS = {
     "tsconfig.json",
     "tsconfig.node.json",
     "tsconfig.app.json",
-    "oxlintrc.json",
-    ".oxfmtrc.json",
     "knip.json",
     "pnpm-workspace.yaml",
     "lefthook.yml",

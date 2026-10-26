@@ -1,5 +1,12 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import { resetCoverArtCacheForTests } from "@/lib/cover-art";
 import { CoverArtThumbnail } from "./CoverArtThumbnail";
 
