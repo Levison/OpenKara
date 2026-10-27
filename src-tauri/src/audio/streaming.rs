@@ -315,6 +315,13 @@ impl StreamingTrack {
         }
     }
 
+    pub fn sample_rate_hz(&self) -> u32 {
+        self.consumers()
+            .first()
+            .map(|consumer| consumer.sample_rate_hz)
+            .unwrap_or(0)
+    }
+
     pub fn all_eof_and_drained(&self) -> bool {
         self.consumers()
             .iter()
