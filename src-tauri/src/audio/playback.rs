@@ -893,6 +893,17 @@ impl PlaybackController {
         if let Some(streaming) = &track.streaming {
             return streaming.all_eof_and_drained();
         }
+        if let Some(stems) = &track.stems {
+            let stem = match stems {
+                LoadedStems::TwoStem { vocals, .. } => vocals,
+                LoadedStems::FourStem(set) => &set.vocals,
+            };
+            if stem.channels == 0 {
+                return true;
+            }
+            let total_frames = stem.samples.len() / stem.channels;
+            return track.render_frame >= total_frames as u64;
+        }
         // Guard against a zero-channel track, which would panic on the
         // division below. A track with no channels can't produce audio, so
         // treat it as already at EOF.
@@ -1348,6 +1359,84 @@ mod tests {
             controller.current_render_frame(),
             60 * 44_100,
             "seek must land on the stem timeline, not the 48 kHz source timeline"
+        );
+    }
+
+    #[test]
+    fn decoded_stems_eof_uses_stem_frame_count() {
+        use super::{DecodedAudio, LoadedStems};
+
+        let mut controller = super::PlaybackController::default();
+        let decoded = DecodedAudio {
+            sample_rate_hz: 48_000,
+            channels: 2,
+            duration_ms: 1_000,
+            samples: vec![0.0; 48_000 * 2],
+        };
+        controller.start_track("song-48k".to_owned(), decoded, 0);
+
+        let stems = LoadedStems::TwoStem {
+            vocals: DecodedAudio {
+                sample_rate_hz: 44_100,
+                channels: 2,
+                duration_ms: 1_000,
+                samples: vec![0.0; 44_100 * 2],
+            },
+            accompaniment: DecodedAudio {
+                sample_rate_hz: 44_100,
+                channels: 2,
+                duration_ms: 1_000,
+                samples: vec![0.0; 44_100 * 2],
+            },
+        };
+        controller.attach_stems("song-48k", stems).unwrap();
+
+        controller.advance_render_frame(44_100);
+        assert!(
+            controller.current_track_reached_eof(),
+            "44.1 kHz decoded stems should reach EOF at 44,100 frames even with 48 kHz source"
+        );
+    }
+
+    #[test]
+    fn decoded_stems_eof_does_not_trigger_prematurely_when_stem_rate_higher() {
+        use super::{DecodedAudio, LoadedStems};
+
+        let mut controller = super::PlaybackController::default();
+        let decoded = DecodedAudio {
+            sample_rate_hz: 44_100,
+            channels: 2,
+            duration_ms: 1_000,
+            samples: vec![0.0; 44_100 * 2],
+        };
+        controller.start_track("song-44k".to_owned(), decoded, 0);
+
+        let stems = LoadedStems::TwoStem {
+            vocals: DecodedAudio {
+                sample_rate_hz: 48_000,
+                channels: 2,
+                duration_ms: 1_000,
+                samples: vec![0.0; 48_000 * 2],
+            },
+            accompaniment: DecodedAudio {
+                sample_rate_hz: 48_000,
+                channels: 2,
+                duration_ms: 1_000,
+                samples: vec![0.0; 48_000 * 2],
+            },
+        };
+        controller.attach_stems("song-44k", stems).unwrap();
+
+        controller.advance_render_frame(44_100);
+        assert!(
+            !controller.current_track_reached_eof(),
+            "48 kHz stems should not reach EOF prematurely at 44,100 frames"
+        );
+
+        controller.advance_render_frame(3_900);
+        assert!(
+            controller.current_track_reached_eof(),
+            "48 kHz stems should reach EOF at 48,000 frames"
         );
     }
 
