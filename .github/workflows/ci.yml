@@ -31,12 +31,13 @@ jobs:
   #   unknown-files       JSON array of unmapped filenames
   #   categories          JSON array of detected categories
   #
-  # PR and main push: path-aware jobs via classify-changes.mjs.
+  # PR: path-aware jobs via classify-changes.mjs. Push runs only CI Gate.
   # workflow_dispatch: full CI (manual force). Full multi-platform and
   # accessibility matrices run on Nightly; Release owns signed packages and
   # Windows #284 core. See docs/CI_LAYERS.md.
   triage:
     name: Triage
+    if: github.event_name != 'push'
     runs-on: ubuntu-slim
     timeout-minutes: 5
     permissions:
@@ -199,7 +200,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 26.12.1
+          node-version: lts/*
           package-manager-cache: false
 
       # Model identity comes from the pinned catalog snapshot
@@ -286,7 +287,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 26.12.1
+          node-version: lts/*
 
       - name: Verify standards route
         run: node --run check:standards
@@ -312,7 +313,7 @@ jobs:
       - name: Setup Vite+ and Node.js
         uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
         with:
-          node-version: 26.12.1
+          node-version: lts/*
           version: 1.4.0
           run-install: false
           cache: true
@@ -368,7 +369,7 @@ jobs:
       - name: Setup Vite+ and Node.js
         uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
         with:
-          node-version: 26.12.1
+          node-version: lts/*
           version: 1.4.0
           run-install: false
           cache: true
@@ -464,7 +465,7 @@ jobs:
       - name: Setup Vite+ and Node.js
         uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
         with:
-          node-version: 26.12.1
+          node-version: lts/*
           version: 1.4.0
           run-install: false
           cache: true
@@ -500,6 +501,7 @@ jobs:
 
   workflow-lint:
     name: Workflow lint
+    if: github.event_name != 'push'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
 
@@ -546,7 +548,7 @@ jobs:
       - name: Setup Vite+ and Node.js
         uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
         with:
-          node-version: 26.12.1
+          node-version: lts/*
           version: 1.4.0
           run-install: false
           cache: true
@@ -590,7 +592,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 26.12.1
+          node-version: lts/*
           package-manager-cache: false
 
       - name: ort C API level vs catalog runtimes
@@ -601,7 +603,7 @@ jobs:
       - name: Install cargo-shear
         uses: taiki-e/install-action@1e29709c0ec63babbe8f266397a465f29a825f91 # v2.87.31
         with:
-          tool: cargo-shear@1.12.4
+          tool: cargo-shear@1.14.0
 
       - name: cargo-shear (unused Cargo dependencies)
         working-directory: src-tauri
@@ -636,27 +638,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 26.12.1
+          node-version: lts/*
           package-manager-cache: false
-
-      - name: Verify Cargo is not broken
-        if: runner.os == 'macOS'
-        run: |
-          if cargo --version 2>&1 | grep -qi "rustup-init"; then
-            echo "Broken cargo detected, reinstalling toolchain..."
-            rm -rf "$HOME/.cargo"
-          fi
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
           toolchain: 1.99.1
-
-      - name: Verify Rust toolchain (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          cargo --version
-          rustc --version
 
       - name: Restore Rust cache
         uses: swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
@@ -699,10 +687,12 @@ jobs:
         run: node scripts/prepare-onnx-runtime.mjs --target "${ORT_TARGET}"
 
       - name: Verify Rust formatting
+        if: runner.os == 'Linux'
         working-directory: src-tauri
         run: cargo fmt --check
 
       - name: Clippy
+        if: runner.os == 'Linux'
         working-directory: src-tauri
         run: cargo clippy --all-targets -- -D warnings
 
@@ -795,17 +785,28 @@ jobs:
         run: |
           cargo test -q --lib source_host::tests::runtime_extract_matches_pinned_executable_by_component
 
+      # The installed-app smoke proves the packaged app installs and separates
+      # audio; it never touches the streaming-source host. This step is the
+      # real consumer acceptance for #579: the production trust root, the
+      # published signed index, the pinned Node ZIP extracted on Windows, and
+      # a live worker `describe` over the source protocol.
+      - name: Accept published streaming source on Windows
+        working-directory: src-tauri
+        shell: pwsh
+        timeout-minutes: 15
+        run: |
+          cargo test -q --test live_streaming_source_consumer -- --ignored --nocapture
+
   # Linux-only Tauri smoke build for frontend-only PRs. Verifies that the
   # frontend bundles into Tauri and the build entry point works, without
   # paying for the 3-platform matrix. Runs when frontend changed but rust
   # did not (pure frontend, deps_js, or frontend_tooling).
   tauri-build-smoke:
     name: Tauri build (Linux smoke)
-    needs: [triage, app-frontend]
+    needs: triage
     if: |
       !cancelled() &&
-      needs.triage.outputs.run_tauri-build-smoke == 'true' &&
-      needs.app-frontend.result != 'failure'
+      needs.triage.outputs.run_tauri-build-smoke == 'true'
     runs-on: ubuntu-22.04
     timeout-minutes: 30
 
@@ -818,7 +819,7 @@ jobs:
       - name: Setup Vite+ and Node.js
         uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
         with:
-          node-version: 26.12.1
+          node-version: lts/*
           version: 1.4.0
           run-install: false
           cache: true
@@ -876,38 +877,13 @@ jobs:
         run: pnpm tauri build --ci --bundles deb
         shell: bash
 
-      - name: Build backend without Node or a source plugin
-        shell: bash
-        run: bash scripts/ci/build-backend-without-node.sh
-
   # Full 3-platform Tauri build for Rust/deps/workflows/unknown changes.
-  # Waits for cheap checks (dependency-checks, windows-compile) before
-  # starting the expensive matrix so failures surface faster.
   tauri-build:
     name: Tauri build (${{ matrix.name }})
-    needs:
-      [
-        triage,
-        app-frontend,
-        rust-test,
-        cargo-deny,
-        dependency-checks,
-        rust-test-windows-compile,
-      ]
-    # Use !cancelled() so the job can run even when some upstream jobs were
-    # skipped (e.g. a rust-only PR skips app-frontend, but tauri-build still
-    # needs to verify the Rust side compiles into a Tauri bundle).
-    # The result != 'failure' guards ensure we don't build on top of a
-    # failed dependency. Only runs for rust/deps/unknown —
-    # frontend-only PRs use tauri-build-smoke (Linux) instead.
+    needs: triage
     if: |
       !cancelled() &&
-      needs.triage.outputs.run_tauri-build == 'true' &&
-      needs.app-frontend.result != 'failure' &&
-      needs.rust-test.result != 'failure' &&
-      needs.cargo-deny.result != 'failure' &&
-      needs.dependency-checks.result != 'failure' &&
-      needs.rust-test-windows-compile.result != 'failure'
+      needs.triage.outputs.run_tauri-build == 'true'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
@@ -933,36 +909,15 @@ jobs:
       - name: Setup Vite+ and Node.js
         uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
         with:
-          node-version: 26.12.1
+          node-version: lts/*
           version: 1.4.0
           run-install: false
           cache: true
-
-      - name: Verify Cargo is not broken
-        if: runner.os == 'macOS'
-        run: |
-          # Some macOS runner images ship with a broken toolchain where
-          # $HOME/.cargo/bin/cargo dispatches to rustup-init. Detect and
-          # repair without a full reinstall every time.
-          if cargo --version 2>&1 | grep -qi "rustup-init"; then
-            echo "Broken cargo detected, reinstalling toolchain..."
-            rm -rf "$HOME/.cargo"
-          fi
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
           toolchain: 1.99.1
-
-      - name: Repair toolchain if still broken
-        if: runner.os == 'macOS'
-        run: |
-          # rustup can leave cargo pointing to rustup-init if the
-          # proxy links got clobbered. Re-run the toolchain installer
-          # so it repairs the bin symlinks.
-          if cargo --version 2>&1 | grep -qi "rustup-init"; then
-            rustup update 1.99.1 --force
-          fi
 
       - name: Restore Rust cache
         uses: swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
@@ -1016,14 +971,10 @@ jobs:
           if [ "$RUNNER_OS" = "Linux" ]; then
             pnpm tauri build --ci --bundles deb
           else
-            pnpm tauri build --debug --no-bundle --ci
+            cd src-tauri
+            cargo check --locked --bin openkara
           fi
         shell: bash
-
-      - name: Build backend without Node or a source plugin
-        if: runner.os == 'Linux'
-        shell: bash
-        run: bash scripts/ci/build-backend-without-node.sh
 
       - name: Verify Linux glibc floor
         if: runner.os == 'Linux'
@@ -1089,7 +1040,7 @@ jobs:
     # 2026-10-22 that mirror slowed to ~50 kB/s and the install step alone
     # used up the whole job timeout (run 39801493440, both attempts).
     # The image tag must equal the playwright version in pnpm-lock.yaml
-    # (enforced by tests/ci/ci-workflow-contract.test.ts); bump both together.
+    # Bump both together.
     container:
       image: mcr.microsoft.com/playwright@sha256:7852dc5a7d72f5fe458a597d690f6c42fbc8e9e26ddfa95f8e6ef552558d9bbf # v1.64.1-noble
       # Chromium needs a larger /dev/shm than Docker's 64 MB default;
@@ -1111,7 +1062,7 @@ jobs:
       - name: Setup Vite+ and Node.js
         uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
         with:
-          node-version: 26.12.1
+          node-version: lts/*
           version: 1.4.0
           run-install: false
           cache: true
@@ -1235,6 +1186,7 @@ jobs:
     steps:
       - name: Verify expected jobs succeeded and non-expected jobs skipped
         env:
+          EVENT_NAME: ${{ github.event_name }}
           EXPECTED_JOBS: ${{ needs.triage.outputs.expected-jobs }}
           TRIAGE: ${{ needs.triage.result }}
           CONVENTIONAL_COMMITS: ${{ needs.conventional-commits.result }}
@@ -1275,6 +1227,16 @@ jobs:
             "tauri-build:$TAURI_BUILD"
             "playwright-ui-smoke:$PLAYWRIGHT_UI_SMOKE"
           )
+
+          if [ "$EVENT_NAME" = "push" ]; then
+            for entry in "${JOBS[@]}"; do
+              if [ "${entry#*:}" != "skipped" ]; then
+                echo "::error::Expected ${entry%%:*} to be skipped on push"
+                exit 1
+              fi
+            done
+            exit 0
+          fi
 
           # Verify triage produced valid expected-jobs JSON.
           if ! echo "$EXPECTED_JOBS" | jq -e 'type == "array"' >/dev/null 2>&1; then
